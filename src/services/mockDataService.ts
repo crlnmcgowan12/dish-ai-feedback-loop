@@ -1,4 +1,3 @@
-
 import { DiningHall, MenuItem, HistoricalRating, MealPeriod } from '../types';
 
 // Dining halls organized by university ID
@@ -9,15 +8,15 @@ export const universityDiningHalls: Record<string, DiningHall[]> = {
       id: "101",
       name: "Annenberg Hall",
       location: "Memorial Hall",
-      hours: "7:30 AM - 7:30 PM",
-      image: "/placeholder.svg"
+      hours: "7:30 AM - 7:30 PM (Mon-Fri), 8:00 AM - 7:00 PM (Sat-Sun)",
+      image: "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?auto=format&fit=crop&w=1200&h=800"
     },
     {
       id: "102",
       name: "Leverett House Dining Hall",
       location: "28 DeWolfe St",
-      hours: "7:30 AM - 8:00 PM",
-      image: "/placeholder.svg"
+      hours: "7:30 AM - 10:00 AM, 11:30 AM - 2:00 PM, 5:00 PM - 7:30 PM",
+      image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&h=800"
     }
   ],
   // Stanford dining halls
@@ -26,15 +25,15 @@ export const universityDiningHalls: Record<string, DiningHall[]> = {
       id: "201",
       name: "Arrillaga Family Dining Commons",
       location: "489 Arguello Way",
-      hours: "7:00 AM - 8:00 PM",
-      image: "/placeholder.svg"
+      hours: "6:30 AM - 9:30 AM, 11:00 AM - 2:00 PM, 5:00 PM - 8:30 PM",
+      image: "https://images.unsplash.com/photo-1487958449943-2429e8be8625?auto=format&fit=crop&w=1200&h=800"
     },
     {
       id: "202",
       name: "Lakeside Dining",
       location: "326 Santa Teresa St",
-      hours: "7:30 AM - 7:30 PM",
-      image: "/placeholder.svg"
+      hours: "7:00 AM - 10:00 AM, 11:00 AM - 2:00 PM, 5:00 PM - 8:00 PM",
+      image: "https://images.unsplash.com/photo-1460574283810-2aab119d8511?auto=format&fit=crop&w=1200&h=800"
     }
   ],
   // UNC Chapel Hill dining halls
@@ -43,15 +42,15 @@ export const universityDiningHalls: Record<string, DiningHall[]> = {
       id: "1501",
       name: "Lenoir Hall",
       location: "South Campus",
-      hours: "7:00 AM - 8:00 PM",
-      image: "/placeholder.svg"
+      hours: "7:00 AM - 10:00 PM (Mon-Fri), 10:00 AM - 8:00 PM (Sat-Sun)",
+      image: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=1200&h=800"
     },
     {
       id: "1502",
       name: "Chase Dining Hall",
       location: "North Campus",
-      hours: "7:30 AM - 9:00 PM",
-      image: "/placeholder.svg"
+      hours: "7:00 AM - 9:00 AM, 11:00 AM - 2:00 PM, 5:00 PM - 9:00 PM",
+      image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&h=800"
     }
   ],
   // UNC Charlotte dining halls
@@ -60,15 +59,15 @@ export const universityDiningHalls: Record<string, DiningHall[]> = {
       id: "1601",
       name: "SoVi Dining Hall",
       location: "South Village",
-      hours: "7:00 AM - 9:00 PM",
-      image: "/placeholder.svg"
+      hours: "7:00 AM - 10:00 AM, 11:00 AM - 2:00 PM, 4:30 PM - 9:00 PM (Mon-Fri), 10:30 AM - 2:00 PM, 5:00 PM - 8:00 PM (Sat-Sun)",
+      image: "https://images.unsplash.com/photo-1635321593217-40050ad13c74?auto=format&fit=crop&w=1200&h=800"
     },
     {
       id: "1602",
       name: "Crown Commons",
       location: "Student Union",
-      hours: "7:30 AM - 9:30 PM",
-      image: "/placeholder.svg"
+      hours: "7:30 AM - 9:00 PM (Mon-Thu), 7:30 AM - 8:00 PM (Fri), 10:30 AM - 8:00 PM (Sat-Sun)",
+      image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&h=800"
     }
   ],
   // Default dining halls for all other universities
@@ -77,22 +76,22 @@ export const universityDiningHalls: Record<string, DiningHall[]> = {
       id: "901",
       name: "Main Dining Hall",
       location: "Student Center",
-      hours: "7:00 AM - 9:00 PM",
-      image: "/placeholder.svg"
+      hours: "7:00 AM - 10:00 AM, 11:00 AM - 2:30 PM, 5:00 PM - 9:00 PM",
+      image: "https://images.unsplash.com/photo-1569096651661-820d0de8b4ab?auto=format&fit=crop&w=1200&h=800"
     },
     {
       id: "902",
       name: "North Campus Dining",
       location: "North Quadrangle",
-      hours: "7:30 AM - 8:30 PM",
-      image: "/placeholder.svg"
+      hours: "7:30 AM - 10:30 AM, 11:30 AM - 2:00 PM, 5:00 PM - 8:30 PM",
+      image: "https://images.unsplash.com/photo-1567521464027-f127ff144326?auto=format&fit=crop&w=1200&h=800"
     },
     {
       id: "903",
       name: "South Commons",
       location: "South Residence Area",
-      hours: "8:00 AM - 10:00 PM",
-      image: "/placeholder.svg"
+      hours: "8:00 AM - 10:30 AM, 11:00 AM - 2:30 PM, 5:00 PM - 10:00 PM",
+      image: "https://images.unsplash.com/photo-1590846406792-0adc7f938f1d?auto=format&fit=crop&w=1200&h=800"
     }
   ]
 };
