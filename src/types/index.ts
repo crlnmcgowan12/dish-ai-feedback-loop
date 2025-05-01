@@ -1,4 +1,5 @@
 
+
 // Dining hall related types
 export interface DiningHall {
   id: string;
@@ -35,5 +36,14 @@ export interface HistoricalRating {
   count: number;
 }
 
+// University related types
+export interface University {
+  id: string;
+  name: string;
+  state: string;
+  city: string;
+}
+
 // Enums
 export type MealPeriod = 'Breakfast' | 'Lunch' | 'Dinner';
+
