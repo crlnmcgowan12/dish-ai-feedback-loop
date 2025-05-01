@@ -18,9 +18,15 @@ export const universities: University[] = [
   { id: "13", name: "New York University", state: "New York", city: "New York" },
   { id: "14", name: "UCLA", state: "California", city: "Los Angeles" },
   { id: "15", name: "University of North Carolina at Chapel Hill", state: "North Carolina", city: "Chapel Hill" },
+  { id: "16", name: "University of North Carolina at Charlotte", state: "North Carolina", city: "Charlotte" },
+  { id: "17", name: "Arizona State University", state: "Arizona", city: "Tempe" },
+  { id: "18", name: "University of Virginia", state: "Virginia", city: "Charlottesville" },
+  { id: "19", name: "Georgia Tech", state: "Georgia", city: "Atlanta" },
+  { id: "20", name: "University of Chicago", state: "Illinois", city: "Chicago" },
 ];
 
 // Get the university by its ID
 export const getUniversityById = (id: string): University | undefined => {
   return universities.find((university) => university.id === id);
 };
+

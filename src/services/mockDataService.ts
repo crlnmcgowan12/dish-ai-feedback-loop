@@ -1,269 +1,302 @@
+import { DiningHall, MenuItem, HistoricalRating, MealPeriod } from '../types';
 
-import { DiningHall, MenuItem, Rating, HistoricalRating, MealPeriod } from '../types';
-
-// Generate a random device ID for anonymous ratings
-export const getDeviceId = (): string => {
-  const deviceId = localStorage.getItem('campusDishDeviceId');
-  if (deviceId) return deviceId;
-  
-  const newDeviceId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-  localStorage.setItem('campusDishDeviceId', newDeviceId);
-  return newDeviceId;
+// Dining halls organized by university ID
+export const universityDiningHalls: Record<string, DiningHall[]> = {
+  // Harvard dining halls
+  "1": [
+    {
+      id: "101",
+      name: "Annenberg Hall",
+      location: "Memorial Hall",
+      hours: "7:30 AM - 7:30 PM",
+      image: "/placeholder.svg"
+    },
+    {
+      id: "102",
+      name: "Leverett House Dining Hall",
+      location: "28 DeWolfe St",
+      hours: "7:30 AM - 8:00 PM",
+      image: "/placeholder.svg"
+    }
+  ],
+  // Stanford dining halls
+  "2": [
+    {
+      id: "201",
+      name: "Arrillaga Family Dining Commons",
+      location: "489 Arguello Way",
+      hours: "7:00 AM - 8:00 PM",
+      image: "/placeholder.svg"
+    },
+    {
+      id: "202",
+      name: "Lakeside Dining",
+      location: "326 Santa Teresa St",
+      hours: "7:30 AM - 7:30 PM",
+      image: "/placeholder.svg"
+    }
+  ],
+  // UNC Chapel Hill dining halls
+  "15": [
+    {
+      id: "1501",
+      name: "Lenoir Hall",
+      location: "South Campus",
+      hours: "7:00 AM - 8:00 PM",
+      image: "/placeholder.svg"
+    },
+    {
+      id: "1502",
+      name: "Chase Dining Hall",
+      location: "North Campus",
+      hours: "7:30 AM - 9:00 PM",
+      image: "/placeholder.svg"
+    }
+  ],
+  // UNC Charlotte dining halls
+  "16": [
+    {
+      id: "1601",
+      name: "SoVi Dining Hall",
+      location: "South Village",
+      hours: "7:00 AM - 9:00 PM",
+      image: "/placeholder.svg"
+    },
+    {
+      id: "1602",
+      name: "Crown Commons",
+      location: "Student Union",
+      hours: "7:30 AM - 9:30 PM",
+      image: "/placeholder.svg"
+    }
+  ],
+  // Default dining halls for all other universities
+  "default": [
+    {
+      id: "901",
+      name: "Main Dining Hall",
+      location: "Student Center",
+      hours: "7:00 AM - 9:00 PM",
+      image: "/placeholder.svg"
+    },
+    {
+      id: "902",
+      name: "North Campus Dining",
+      location: "North Quadrangle",
+      hours: "7:30 AM - 8:30 PM",
+      image: "/placeholder.svg"
+    },
+    {
+      id: "903",
+      name: "South Commons",
+      location: "South Residence Area",
+      hours: "8:00 AM - 10:00 PM",
+      image: "/placeholder.svg"
+    }
+  ]
 };
 
-// Mock Dining Halls
-export const diningHalls: DiningHall[] = [
+// Helper function to get dining halls for a specific university
+export const getDiningHallsByUniversity = (universityId: string): DiningHall[] => {
+  return universityDiningHalls[universityId] || universityDiningHalls["default"];
+};
+
+// Maintain a list of all dining halls for backward compatibility
+export const diningHalls: DiningHall[] = Object.values(universityDiningHalls).flat();
+
+// Sample menu items
+export const menuItems: MenuItem[] = [
   {
-    id: '1',
-    name: 'University Center',
-    location: 'Central Campus',
-    hours: '7:00 AM - 9:00 PM',
-    image: 'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?q=80&w=1980',
+    id: "m1",
+    name: "Classic Burger",
+    description: "Juicy beef patty with lettuce, tomato, and cheese.",
+    category: "Entree",
+    dietaryInfo: [],
+    mealPeriod: "Lunch",
+    diningHallId: "901",
+    averageRating: 4.2,
+    ratingsCount: 120,
+    image: "/placeholder.svg"
   },
   {
-    id: '2',
-    name: 'North Commons',
-    location: 'North Campus',
-    hours: '7:30 AM - 8:00 PM',
-    image: 'https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?q=80&w=1950',
+    id: "m2",
+    name: "Vegetarian Pizza",
+    description: "Delicious pizza with a variety of fresh vegetables.",
+    category: "Entree",
+    dietaryInfo: ["Vegetarian"],
+    mealPeriod: "Dinner",
+    diningHallId: "902",
+    averageRating: 4.5,
+    ratingsCount: 95,
+    image: "/placeholder.svg"
   },
   {
-    id: '3',
-    name: 'South Dining Hall',
-    location: 'South Campus',
-    hours: '8:00 AM - 8:30 PM',
-    image: 'https://images.unsplash.com/photo-1656131590461-7f68a54dce4c?q=80&w=1770',
-  }
+    id: "m3",
+    name: "Caesar Salad",
+    description: "Crisp romaine lettuce with parmesan cheese and Caesar dressing.",
+    category: "Side",
+    dietaryInfo: ["Vegetarian"],
+    mealPeriod: "Lunch",
+    diningHallId: "901",
+    averageRating: 4.0,
+    ratingsCount: 80,
+    image: "/placeholder.svg"
+  },
+  {
+    id: "m4",
+    name: "Chocolate Cake",
+    description: "Rich chocolate cake with chocolate frosting.",
+    category: "Dessert",
+    dietaryInfo: [],
+    mealPeriod: "Dinner",
+    diningHallId: "902",
+    averageRating: 4.7,
+    ratingsCount: 110,
+    image: "/placeholder.svg"
+  },
+  {
+    id: "m5",
+    name: "Grilled Chicken Sandwich",
+    description: "Grilled chicken breast with avocado and chipotle mayo.",
+    category: "Entree",
+    dietaryInfo: [],
+    mealPeriod: "Lunch",
+    diningHallId: "903",
+    averageRating: 4.3,
+    ratingsCount: 100,
+    image: "/placeholder.svg"
+  },
+  {
+    id: "m6",
+    name: "Pasta Primavera",
+    description: "Pasta with seasonal vegetables in a light cream sauce.",
+    category: "Entree",
+    dietaryInfo: ["Vegetarian"],
+    mealPeriod: "Dinner",
+    diningHallId: "903",
+    averageRating: 4.4,
+    ratingsCount: 85,
+    image: "/placeholder.svg"
+  },
+  {
+    id: "m7",
+    name: "Apple Pie",
+    description: "Classic apple pie with a flaky crust.",
+    category: "Dessert",
+    dietaryInfo: ["Vegetarian"],
+    mealPeriod: "Dinner",
+    diningHallId: "901",
+    averageRating: 4.6,
+    ratingsCount: 125,
+    image: "/placeholder.svg"
+  },
+  {
+    id: "m8",
+    name: "Tomato Soup",
+    description: "Creamy tomato soup with basil.",
+    category: "Side",
+    dietaryInfo: ["Vegetarian", "Gluten-Free"],
+    mealPeriod: "Lunch",
+    diningHallId: "902",
+    averageRating: 4.1,
+    ratingsCount: 75,
+    image: "/placeholder.svg"
+  },
+  {
+    id: "m9",
+    name: "Salmon with Roasted Vegetables",
+    description: "Grilled salmon served with a medley of roasted vegetables.",
+    category: "Entree",
+    dietaryInfo: ["Gluten-Free"],
+    mealPeriod: "Dinner",
+    diningHallId: "1601",
+    averageRating: 4.5,
+    ratingsCount: 90,
+    image: "/placeholder.svg"
+  },
+  {
+    id: "m10",
+    name: "Black Bean Burger",
+    description: "Vegetarian black bean burger with all the fixings.",
+    category: "Entree",
+    dietaryInfo: ["Vegetarian"],
+    mealPeriod: "Lunch",
+    diningHallId: "1602",
+    averageRating: 4.2,
+    ratingsCount: 115,
+    image: "/placeholder.svg"
+  },
+  {
+    id: "m11",
+    name: "Chicken Tenders",
+    description: "Crispy chicken tenders served with your choice of dipping sauce.",
+    category: "Entree",
+    dietaryInfo: [],
+    mealPeriod: "Dinner",
+    diningHallId: "1501",
+    averageRating: 3.8,
+    ratingsCount: 150,
+    image: "/placeholder.svg"
+  },
+    {
+    id: "m12",
+    name: "Mac and Cheese",
+    description: "Creamy mac and cheese",
+    category: "Entree",
+    dietaryInfo: ["Vegetarian"],
+    mealPeriod: "Lunch",
+    diningHallId: "1502",
+    averageRating: 3.8,
+    ratingsCount: 150,
+    image: "/placeholder.svg"
+  },
 ];
 
-// Mock Menu Items
-const generateMenuItems = (): MenuItem[] => {
-  const menuItems: MenuItem[] = [];
-  const categories = ['Entree', 'Side', 'Dessert', 'Beverage'];
-  const dietaryOptions = ['Vegetarian', 'Vegan', 'Gluten-Free', 'Dairy-Free', 'Halal', 'Kosher'];
-  
-  const breakfastItems = [
-    'Scrambled Eggs', 'Pancakes', 'French Toast', 'Oatmeal', 'Bacon', 'Sausage',
-    'Breakfast Burrito', 'Yogurt Parfait', 'Fresh Fruit', 'Cereal'
-  ];
-  
-  const lunchItems = [
-    'Burger', 'Pizza', 'Salad Bar', 'Sandwich', 'Soup of the Day', 'Pasta',
-    'Stir Fry', 'Tacos', 'Quesadilla', 'Grilled Cheese'
-  ];
-  
-  const dinnerItems = [
-    'Grilled Chicken', 'Roasted Vegetables', 'Lasagna', 'Steak', 'Salmon',
-    'Rice Bowl', 'Curry', 'Pasta Primavera', 'Tofu Stir Fry', 'Meatloaf'
-  ];
-  
-  const images = [
-    'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=1780',
-    'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?q=80&w=1980',
-    'https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=1770',
-    'https://images.unsplash.com/photo-1493770348161-369560ae357d?q=80&w=1650',
-    'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=1770',
-    'https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?q=80&w=1770',
-    'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80&w=1770',
-    'https://images.unsplash.com/photo-1460306855393-0410f61241c7?q=80&w=1773'
-  ];
-
-  let id = 1;
-  
-  // Add breakfast items for each dining hall
-  diningHalls.forEach((hall) => {
-    breakfastItems.forEach((item, index) => {
-      const randomCategory = categories[Math.floor(Math.random() * categories.length)];
-      const randomDietary: string[] = [];
-      
-      // Assign 0-2 random dietary options
-      for (let i = 0; i < Math.floor(Math.random() * 3); i++) {
-        const option = dietaryOptions[Math.floor(Math.random() * dietaryOptions.length)];
-        if (!randomDietary.includes(option)) {
-          randomDietary.push(option);
-        }
-      }
-      
-      menuItems.push({
-        id: id.toString(),
-        name: item,
-        description: `Delicious ${item.toLowerCase()} fresh from our kitchen.`,
-        category: randomCategory,
-        dietaryInfo: randomDietary,
-        mealPeriod: 'Breakfast',
-        diningHallId: hall.id,
-        averageRating: (2.5 + Math.random() * 2.5).toFixed(1) as unknown as number,
-        ratingsCount: Math.floor(Math.random() * 50),
-        image: images[Math.floor(Math.random() * images.length)]
-      });
-      id++;
-    });
-  });
-  
-  // Add lunch items for each dining hall
-  diningHalls.forEach((hall) => {
-    lunchItems.forEach((item) => {
-      const randomCategory = categories[Math.floor(Math.random() * categories.length)];
-      const randomDietary: string[] = [];
-      
-      // Assign 0-2 random dietary options
-      for (let i = 0; i < Math.floor(Math.random() * 3); i++) {
-        const option = dietaryOptions[Math.floor(Math.random() * dietaryOptions.length)];
-        if (!randomDietary.includes(option)) {
-          randomDietary.push(option);
-        }
-      }
-      
-      menuItems.push({
-        id: id.toString(),
-        name: item,
-        description: `Tasty ${item.toLowerCase()} made with quality ingredients.`,
-        category: randomCategory,
-        dietaryInfo: randomDietary,
-        mealPeriod: 'Lunch',
-        diningHallId: hall.id,
-        averageRating: (2.5 + Math.random() * 2.5).toFixed(1) as unknown as number,
-        ratingsCount: Math.floor(Math.random() * 50),
-        image: images[Math.floor(Math.random() * images.length)]
-      });
-      id++;
-    });
-  });
-  
-  // Add dinner items for each dining hall
-  diningHalls.forEach((hall) => {
-    dinnerItems.forEach((item) => {
-      const randomCategory = categories[Math.floor(Math.random() * categories.length)];
-      const randomDietary: string[] = [];
-      
-      // Assign 0-2 random dietary options
-      for (let i = 0; i < Math.floor(Math.random() * 3); i++) {
-        const option = dietaryOptions[Math.floor(Math.random() * dietaryOptions.length)];
-        if (!randomDietary.includes(option)) {
-          randomDietary.push(option);
-        }
-      }
-      
-      menuItems.push({
-        id: id.toString(),
-        name: item,
-        description: `Savory ${item.toLowerCase()} prepared by our talented chefs.`,
-        category: randomCategory,
-        dietaryInfo: randomDietary,
-        mealPeriod: 'Dinner',
-        diningHallId: hall.id,
-        averageRating: (2.5 + Math.random() * 2.5).toFixed(1) as unknown as number,
-        ratingsCount: Math.floor(Math.random() * 50),
-        image: images[Math.floor(Math.random() * images.length)]
-      });
-      id++;
-    });
-  });
-  
-  return menuItems;
+// Sample historical ratings
+export const historicalRatings: Record<string, HistoricalRating[]> = {
+  "m1": [
+    { date: "2024-01-01", averageRating: 4.1, count: 30 },
+    { date: "2024-01-02", averageRating: 4.3, count: 35 },
+    { date: "2024-01-03", averageRating: 4.2, count: 40 }
+  ],
+  "m2": [
+    { date: "2024-01-01", averageRating: 4.4, count: 25 },
+    { date: "2024-01-02", averageRating: 4.6, count: 30 },
+    { date: "2024-01-03", averageRating: 4.5, count: 32 }
+  ],
+  "m3": [
+    { date: "2024-01-01", averageRating: 3.9, count: 20 },
+    { date: "2024-01-02", averageRating: 4.1, count: 22 },
+    { date: "2024-01-03", averageRating: 4.0, count: 28 }
+  ],
+  "m9": [
+    { date: "2024-01-01", averageRating: 4.3, count: 28 },
+    { date: "2024-01-02", averageRating: 4.5, count: 32 },
+    { date: "2024-01-03", averageRating: 4.4, count: 36 }
+  ],
+  "m10": [
+    { date: "2024-01-01", averageRating: 4.0, count: 32 },
+    { date: "2024-01-02", averageRating: 4.2, count: 38 },
+    { date: "2024-01-03", averageRating: 4.1, count: 42 }
+  ],
+    "m11": [
+    { date: "2024-01-01", averageRating: 3.9, count: 32 },
+    { date: "2024-01-02", averageRating: 4.1, count: 38 },
+    { date: "2024-01-03", averageRating: 4.0, count: 42 }
+  ],
+      "m12": [
+    { date: "2024-01-01", averageRating: 3.7, count: 32 },
+    { date: "2024-01-02", averageRating: 3.9, count: 38 },
+    { date: "2024-01-03", averageRating: 3.8, count: 42 }
+  ],
 };
 
-export const menuItems = generateMenuItems();
-
-// Ratings storage (simulated backend)
-const RATINGS_STORAGE_KEY = 'campusDishRatings';
-
-// Load ratings from localStorage
-export const getRatings = (): Rating[] => {
-  const stored = localStorage.getItem(RATINGS_STORAGE_KEY);
-  return stored ? JSON.parse(stored) : [];
+// Function to get menu items for a specific dining hall and meal period
+export const getMenuItems = (diningHallId: string, mealPeriod?: MealPeriod): MenuItem[] => {
+  return menuItems.filter(item => item.diningHallId === diningHallId && (!mealPeriod || item.mealPeriod === mealPeriod));
 };
 
-// Save a rating
-export const saveRating = (menuItemId: string, value: number): void => {
-  const deviceId = getDeviceId();
-  const ratings = getRatings();
-  
-  // Check if this device has already rated this item
-  const existingRatingIndex = ratings.findIndex(
-    (r) => r.menuItemId === menuItemId && r.deviceId === deviceId
-  );
-  
-  const newRating: Rating = {
-    id: existingRatingIndex >= 0 ? ratings[existingRatingIndex].id : Date.now().toString(),
-    menuItemId,
-    value,
-    deviceId,
-    timestamp: new Date().toISOString()
-  };
-  
-  if (existingRatingIndex >= 0) {
-    // Update existing rating
-    ratings[existingRatingIndex] = newRating;
-  } else {
-    // Add new rating
-    ratings.push(newRating);
-  }
-  
-  localStorage.setItem(RATINGS_STORAGE_KEY, JSON.stringify(ratings));
-  updateAverageRatings();
+// Function to get historical ratings for a menu item
+export const getHistoricalRatingsForItem = (menuItemId: string): HistoricalRating[] => {
+  return historicalRatings[menuItemId] || [];
 };
-
-// Update average ratings for all menu items
-export const updateAverageRatings = (): void => {
-  const ratings = getRatings();
-  const ratingsByItem: Record<string, number[]> = {};
-  
-  // Group ratings by menu item
-  ratings.forEach((rating) => {
-    if (!ratingsByItem[rating.menuItemId]) {
-      ratingsByItem[rating.menuItemId] = [];
-    }
-    ratingsByItem[rating.menuItemId].push(rating.value);
-  });
-  
-  // Update average ratings for each item
-  for (const item of menuItems) {
-    const itemRatings = ratingsByItem[item.id] || [];
-    if (itemRatings.length > 0) {
-      const sum = itemRatings.reduce((acc, val) => acc + val, 0);
-      item.averageRating = parseFloat((sum / itemRatings.length).toFixed(1));
-      item.ratingsCount = itemRatings.length;
-    }
-  }
-};
-
-// Get menu items for a specific dining hall and meal period
-export const getMenuItemsByDiningHallAndMeal = (
-  diningHallId: string,
-  mealPeriod: MealPeriod
-): MenuItem[] => {
-  return menuItems.filter(
-    (item) => item.diningHallId === diningHallId && item.mealPeriod === mealPeriod
-  );
-};
-
-// Get historical ratings for a menu item (mock data)
-export const getHistoricalRatings = (menuItemId: string): HistoricalRating[] => {
-  const result: HistoricalRating[] = [];
-  const today = new Date();
-  
-  // Generate 7 days of historical data
-  for (let i = 6; i >= 0; i--) {
-    const date = new Date();
-    date.setDate(today.getDate() - i);
-    
-    // Base the rating on the current average with some random variation
-    const menuItem = menuItems.find((item) => item.id === menuItemId);
-    const baseRating = menuItem ? menuItem.averageRating : 3;
-    const randomVariation = (Math.random() * 1.5) - 0.75; // -0.75 to 0.75
-    let rating = baseRating + randomVariation;
-    rating = Math.min(Math.max(rating, 1), 5); // Clamp between 1 and 5
-    
-    result.push({
-      date: date.toISOString().split('T')[0],
-      averageRating: parseFloat(rating.toFixed(1)),
-      count: Math.floor(Math.random() * 20) + 1
-    });
-  }
-  
-  return result;
-};
-
-// Initialize the ratings from localStorage
-updateAverageRatings();

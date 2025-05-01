@@ -3,13 +3,14 @@ import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import DiningHallCard from '../components/DiningHallCard';
 import UniversitySelector from '../components/UniversitySelector';
-import { diningHalls } from '../services/mockDataService';
-import { University } from '../types';
+import { getDiningHallsByUniversity } from '../services/mockDataService';
+import { University, DiningHall } from '../types';
 import { universities } from '../services/universityService';
 import { toast } from '../hooks/use-toast';
 
 const Index: React.FC = () => {
   const [selectedUniversity, setSelectedUniversity] = useState<University | null>(null);
+  const [diningHalls, setDiningHalls] = useState<DiningHall[]>([]);
 
   // Try to load previously selected university from localStorage
   useEffect(() => {
@@ -18,13 +19,20 @@ const Index: React.FC = () => {
       const university = universities.find(u => u.id === savedUniversityId);
       if (university) {
         setSelectedUniversity(university);
+        // Load dining halls for this university
+        setDiningHalls(getDiningHallsByUniversity(savedUniversityId));
       }
+    } else {
+      // Set default dining halls if no university is selected
+      setDiningHalls(getDiningHallsByUniversity("default"));
     }
   }, []);
 
   const handleUniversityChange = (university: University) => {
     setSelectedUniversity(university);
     localStorage.setItem('selectedUniversityId', university.id);
+    // Update dining halls based on the selected university
+    setDiningHalls(getDiningHallsByUniversity(university.id));
     toast({
       title: "University Selected",
       description: `You've selected ${university.name}`,
@@ -59,12 +67,18 @@ const Index: React.FC = () => {
         )}
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold text-campus-secondary mb-4">Campus Dining Halls</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {diningHalls.map((hall) => (
-              <DiningHallCard key={hall.id} diningHall={hall} />
-            ))}
-          </div>
+          <h2 className="text-2xl font-semibold text-campus-secondary mb-4">
+            {selectedUniversity ? `${selectedUniversity.name} Dining Halls` : 'Campus Dining Halls'}
+          </h2>
+          {diningHalls.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {diningHalls.map((hall) => (
+                <DiningHallCard key={hall.id} diningHall={hall} />
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-600">No dining halls available for this university. Please select another university.</p>
+          )}
         </section>
       </main>
       <footer className="bg-campus-primary text-white py-4">
