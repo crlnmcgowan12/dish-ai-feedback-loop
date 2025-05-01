@@ -1,3 +1,4 @@
+
 import { DiningHall, MenuItem, HistoricalRating, MealPeriod } from '../types';
 
 // Dining halls organized by university ID
@@ -299,4 +300,61 @@ export const getMenuItems = (diningHallId: string, mealPeriod?: MealPeriod): Men
 // Function to get historical ratings for a menu item
 export const getHistoricalRatingsForItem = (menuItemId: string): HistoricalRating[] => {
   return historicalRatings[menuItemId] || [];
+};
+
+// NEW FUNCTIONS TO FIX MISSING EXPORTS
+
+// Function to save a rating for a menu item
+export const saveRating = (menuItemId: string, rating: number): void => {
+  // Find the menu item
+  const menuItem = menuItems.find(item => item.id === menuItemId);
+  
+  if (menuItem) {
+    // Update the menu item's rating
+    const totalRatingValue = menuItem.averageRating * menuItem.ratingsCount;
+    const newTotalRatingValue = totalRatingValue + rating;
+    const newRatingsCount = menuItem.ratingsCount + 1;
+    
+    menuItem.ratingsCount = newRatingsCount;
+    menuItem.averageRating = parseFloat((newTotalRatingValue / newRatingsCount).toFixed(1));
+    
+    // Add to historical ratings if possible
+    const today = new Date().toISOString().split('T')[0];
+    
+    if (!historicalRatings[menuItemId]) {
+      historicalRatings[menuItemId] = [];
+    }
+    
+    const existingRating = historicalRatings[menuItemId].find(r => r.date === today);
+    
+    if (existingRating) {
+      const totalValue = existingRating.averageRating * existingRating.count;
+      existingRating.count += 1;
+      existingRating.averageRating = parseFloat(((totalValue + rating) / existingRating.count).toFixed(1));
+    } else {
+      historicalRatings[menuItemId].push({
+        date: today,
+        averageRating: rating,
+        count: 1
+      });
+    }
+  }
+};
+
+// Function to get menu items by dining hall and meal period
+// This is an alias for the existing getMenuItems function to fix the missing export
+export const getMenuItemsByDiningHallAndMeal = (diningHallId: string, mealPeriod: MealPeriod): MenuItem[] => {
+  return getMenuItems(diningHallId, mealPeriod);
+};
+
+// Function to get historical ratings (alias for getHistoricalRatingsForItem)
+export const getHistoricalRatings = (menuItemId: string): HistoricalRating[] => {
+  return getHistoricalRatingsForItem(menuItemId);
+};
+
+// Function to simulate updating average ratings across the system
+export const updateAverageRatings = (): void => {
+  // In a real app, this would recalculate all averages from the database
+  // For this mock, we'll just log that it was called
+  console.log("Average ratings updated across the system");
 };
