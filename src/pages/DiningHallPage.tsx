@@ -15,6 +15,9 @@ const DiningHallPage: React.FC = () => {
   const [activeMeal, setActiveMeal] = useState<MealPeriod>('Breakfast');
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [diningHall, setDiningHall] = useState(diningHalls.find((hall) => hall.id === id));
+  
+  // Get current day of the week
+  const currentDay = new Date().toLocaleDateString('en-US', { weekday: 'long' }) as keyof typeof diningHall?.dailyHours;
 
   // Handle invalid IDs
   useEffect(() => {
@@ -69,8 +72,8 @@ const DiningHallPage: React.FC = () => {
               <h1 className="text-3xl font-bold text-campus-primary">{diningHall.name}</h1>
               <p className="text-gray-600 mb-2">{diningHall.location}</p>
               <div className="p-2 border rounded my-2 bg-gray-50">
-                <h3 className="font-medium text-gray-800">Hours of Operation</h3>
-                <p className="text-sm text-gray-600 whitespace-pre-line">{diningHall.hours}</p>
+                <h3 className="font-medium text-gray-800">Today's Hours ({currentDay})</h3>
+                <p className="text-sm text-gray-600 whitespace-pre-line">{diningHall.dailyHours[currentDay]}</p>
               </div>
               <Button 
                 variant="outline" 

@@ -10,6 +10,9 @@ interface DiningHallCardProps {
 }
 
 const DiningHallCard: React.FC<DiningHallCardProps> = ({ diningHall }) => {
+  // Get current day of week
+  const currentDay = new Date().toLocaleDateString('en-US', { weekday: 'long' }) as keyof typeof diningHall.dailyHours;
+
   return (
     <Link to={`/dining-hall/${diningHall.id}`} className="block">
       <Card className="h-full overflow-hidden hover:shadow-lg transition-shadow duration-300">
@@ -26,8 +29,9 @@ const DiningHallCard: React.FC<DiningHallCardProps> = ({ diningHall }) => {
         <CardContent className="pb-2 pt-0">
           <p className="text-sm text-gray-600">{diningHall.location}</p>
         </CardContent>
-        <CardFooter className="pt-0 text-sm text-gray-500">
-          <p className="line-clamp-2">{diningHall.hours}</p>
+        <CardFooter className="pt-0 text-sm text-gray-500 flex flex-col items-start">
+          <p className="font-medium text-xs text-gray-700">Today's Hours ({currentDay}):</p>
+          <p className="line-clamp-2">{diningHall.dailyHours[currentDay]}</p>
         </CardFooter>
       </Card>
     </Link>

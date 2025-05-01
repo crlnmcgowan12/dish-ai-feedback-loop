@@ -1,11 +1,18 @@
-
-
 // Dining hall related types
 export interface DiningHall {
   id: string;
   name: string;
   location: string;
   hours: string;
+  dailyHours: {
+    Monday: string;
+    Tuesday: string;
+    Wednesday: string;
+    Thursday: string;
+    Friday: string;
+    Saturday: string;
+    Sunday: string;
+  };
   image: string;
 }
 
@@ -46,4 +53,3 @@ export interface University {
 
 // Enums
 export type MealPeriod = 'Breakfast' | 'Lunch' | 'Dinner';
-
