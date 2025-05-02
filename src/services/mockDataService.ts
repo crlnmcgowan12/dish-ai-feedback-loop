@@ -438,4 +438,3 @@ export const menuItems: MenuItem[] = [
   {
     id: "sovi_b3",
     name: "Greek Yogurt Parfait",
-    description:
