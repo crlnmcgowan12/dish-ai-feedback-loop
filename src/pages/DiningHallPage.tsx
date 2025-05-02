@@ -17,7 +17,7 @@ const DiningHallPage: React.FC = () => {
   const [diningHall, setDiningHall] = useState(diningHalls.find((hall) => hall.id === id));
   
   // Get current day of the week
-  const currentDay = new Date().toLocaleDateString('en-US', { weekday: 'long' }) as keyof typeof diningHall?.dailyHours;
+  const currentDay = new Date().toLocaleDateString('en-US', { weekday: 'long' }) as keyof typeof diningHall.dailyHours;
 
   // Handle invalid IDs
   useEffect(() => {
