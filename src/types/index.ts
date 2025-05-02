@@ -1,3 +1,4 @@
+
 // Dining hall related types
 export interface DiningHall {
   id: string;
@@ -20,6 +21,7 @@ export interface MenuItem {
   id: string;
   name: string;
   description: string;
+  ingredients?: string; // Added ingredients field
   category: string; // e.g., "Entree", "Side", "Dessert"
   dietaryInfo: string[]; // e.g., ["Vegetarian", "Gluten-Free"]
   mealPeriod: MealPeriod;

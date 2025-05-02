@@ -32,6 +32,12 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({ menuItem, onRatingChange })
       </CardHeader>
       <CardContent className="pb-2">
         <p className="text-sm text-gray-600 mb-2">{menuItem.description}</p>
+        {menuItem.ingredients && (
+          <div className="mb-2">
+            <p className="text-xs font-medium text-gray-700">Ingredients:</p>
+            <p className="text-xs text-gray-600">{menuItem.ingredients}</p>
+          </div>
+        )}
         <div className="flex flex-wrap gap-1 mb-2">
           {menuItem.dietaryInfo.map((info) => (
             <Badge key={info} variant="secondary" className="text-xs">
