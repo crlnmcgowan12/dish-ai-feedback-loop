@@ -63,3 +63,9 @@ export const getAverageRating = (menuItemId: string): number => {
   return sum / ratings.length;
 };
 
+// Get all ratings from localStorage
+export const getRatings = (): Rating[] => {
+  const ratingsJson = localStorage.getItem(RATINGS_STORAGE_KEY);
+  if (!ratingsJson) return [];
+  return JSON.parse(ratingsJson);
+};
