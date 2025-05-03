@@ -33,7 +33,7 @@ export const scrapeMenuFromWebsite = async (
     toast({
       title: "Menu Imported",
       description: `Successfully imported ${scrapedItems.length} menu items.`,
-      variant: "success"
+      variant: "default" // Changed from "success" to "default"
     });
     
     return scrapedItems;
