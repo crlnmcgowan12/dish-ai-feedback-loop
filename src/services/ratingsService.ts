@@ -63,6 +63,26 @@ export const getAverageRating = (menuItemId: string): number => {
   return sum / ratings.length;
 };
 
+// Calculate daily rating for a menu item
+export const getDailyRating = (menuItemId: string): { rating: number; count: number } => {
+  const ratings = getRatingsByMenuItem(menuItemId);
+  if (ratings.length === 0) return { rating: 0, count: 0 };
+  
+  // Get today's date in YYYY-MM-DD format
+  const today = new Date().toISOString().split('T')[0];
+  
+  // Filter ratings from today
+  const todayRatings = ratings.filter(rating => rating.timestamp.split('T')[0] === today);
+  
+  if (todayRatings.length === 0) return { rating: 0, count: 0 };
+  
+  const sum = todayRatings.reduce((total, rating) => total + rating.value, 0);
+  return { 
+    rating: sum / todayRatings.length,
+    count: todayRatings.length 
+  };
+};
+
 // Get all ratings from localStorage
 export const getRatings = (): Rating[] => {
   const ratingsJson = localStorage.getItem(RATINGS_STORAGE_KEY);

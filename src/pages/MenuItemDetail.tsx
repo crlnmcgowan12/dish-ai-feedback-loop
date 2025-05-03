@@ -9,6 +9,7 @@ import HistoricalRatingChart from '../components/HistoricalRatingChart';
 import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
+import { getAverageRating, getDailyRating } from '../services/ratingsService';
 
 const MenuItemDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -17,6 +18,10 @@ const MenuItemDetail: React.FC = () => {
     menuItems.find((item) => item.id === id)
   );
   const [historicalRatings, setHistoricalRatings] = useState<HistoricalRating[]>([]);
+  const [overallRating, setOverallRating] = useState(0);
+  const [overallCount, setOverallCount] = useState(0);
+  const [todayRating, setTodayRating] = useState(0);
+  const [todayCount, setTodayCount] = useState(0);
 
   // Handle invalid IDs
   useEffect(() => {
@@ -26,8 +31,29 @@ const MenuItemDetail: React.FC = () => {
       // Load historical ratings
       const ratings = getHistoricalRatings(menuItem.id);
       setHistoricalRatings(ratings);
+      
+      // Get real-time ratings
+      const avgRating = getAverageRating(menuItem.id);
+      const { rating: dailyRating, count: dailyCount } = getDailyRating(menuItem.id);
+      
+      setOverallRating(avgRating > 0 ? avgRating : menuItem.averageRating);
+      setOverallCount(menuItem.ratingsCount);
+      setTodayRating(dailyRating);
+      setTodayCount(dailyCount);
     }
   }, [menuItem, navigate, id]);
+  
+  const handleRatingChange = () => {
+    if (!menuItem) return;
+    
+    // Update ratings after a new rating is submitted
+    const avgRating = getAverageRating(menuItem.id);
+    const { rating: dailyRating, count: dailyCount } = getDailyRating(menuItem.id);
+    
+    setOverallRating(avgRating);
+    setTodayRating(dailyRating);
+    setTodayCount(dailyCount);
+  };
 
   if (!menuItem) {
     return null; // Will redirect via useEffect
@@ -84,25 +110,53 @@ const MenuItemDetail: React.FC = () => {
                 ))}
               </div>
 
-              <div className="mb-6">
-                <h2 className="text-xl font-semibold mb-2">Rating</h2>
-                <div className="flex items-center">
-                  <div className="mr-4">
-                    <p className="text-3xl font-bold text-campus-primary">{menuItem.averageRating}</p>
-                    <p className="text-sm text-gray-500">{menuItem.ratingsCount} ratings</p>
+              <div className="grid md:grid-cols-2 gap-6 mb-6">
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <h2 className="text-xl font-semibold mb-2">Overall Rating</h2>
+                  <div className="flex items-center">
+                    <div className="mr-4">
+                      <p className="text-3xl font-bold text-campus-primary">{overallRating.toFixed(1)}</p>
+                      <p className="text-sm text-gray-500">{overallCount} ratings</p>
+                    </div>
+                    <StarRating
+                      menuItemId={menuItem.id}
+                      initialRating={overallRating}
+                      size="lg"
+                      readOnly
+                    />
                   </div>
-                  <StarRating
-                    menuItemId={menuItem.id}
-                    initialRating={menuItem.averageRating}
-                    size="lg"
-                    readOnly
-                  />
+                </div>
+                
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <h2 className="text-xl font-semibold mb-2">Today's Rating</h2>
+                  <div className="flex items-center">
+                    <div className="mr-4">
+                      <p className="text-3xl font-bold text-campus-primary">
+                        {todayRating > 0 ? todayRating.toFixed(1) : 'N/A'}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        {todayCount > 0 ? `${todayCount} ratings today` : 'No ratings today'}
+                      </p>
+                    </div>
+                    {todayRating > 0 && (
+                      <StarRating
+                        menuItemId={menuItem.id}
+                        initialRating={todayRating}
+                        size="lg"
+                        readOnly
+                      />
+                    )}
+                  </div>
                 </div>
               </div>
 
               <div className="mb-6">
                 <h2 className="text-xl font-semibold mb-2">Rate This Item</h2>
-                <StarRating menuItemId={menuItem.id} size="lg" />
+                <StarRating 
+                  menuItemId={menuItem.id} 
+                  size="lg" 
+                  onRatingChange={handleRatingChange}
+                />
               </div>
 
               {historicalRatings.length > 0 && (
