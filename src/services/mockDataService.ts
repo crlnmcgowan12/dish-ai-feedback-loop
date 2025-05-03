@@ -1,3 +1,4 @@
+
 import { DiningHall, MenuItem, HistoricalRating, MealPeriod } from '../types';
 
 // Dining halls organized by university ID
@@ -438,3 +439,157 @@ export const menuItems: MenuItem[] = [
   {
     id: "sovi_b3",
     name: "Greek Yogurt Parfait",
+    description: "Creamy Greek yogurt layered with granola and fresh berries.",
+    ingredients: "Greek yogurt, granola, strawberries, blueberries, honey",
+    category: "Breakfast",
+    dietaryInfo: ["Vegetarian"],
+    mealPeriod: "Breakfast",
+    diningHallId: "1601",
+    averageRating: 4.6,
+    ratingsCount: 65,
+    image: "https://images.unsplash.com/photo-1505252585461-04db1eb84625?auto=format&fit=crop&w=800&h=600"
+  },
+  {
+    id: "sovi_b4",
+    name: "Oatmeal Bar",
+    description: "Hearty steel-cut oatmeal with a variety of toppings.",
+    ingredients: "Steel-cut oats, milk, brown sugar, cinnamon, raisins, nuts, fresh fruits",
+    category: "Breakfast",
+    dietaryInfo: ["Vegetarian", "Vegan"],
+    mealPeriod: "Breakfast",
+    diningHallId: "1601",
+    averageRating: 4.2,
+    ratingsCount: 58,
+    image: "https://images.unsplash.com/photo-1517673132405-a56a62b18caf?auto=format&fit=crop&w=800&h=600"
+  },
+  
+  // Lunch Items - SoVi Dining Hall
+  {
+    id: "sovi_l1",
+    name: "Grilled Chicken Sandwich",
+    description: "Marinated grilled chicken breast on a toasted bun with lettuce and tomato.",
+    ingredients: "Chicken breast, burger bun, lettuce, tomato, mayonnaise, pickles",
+    category: "Entree",
+    dietaryInfo: [],
+    mealPeriod: "Lunch",
+    diningHallId: "1601",
+    averageRating: 4.5,
+    ratingsCount: 95,
+    image: "https://images.unsplash.com/photo-1521390188846-e2a3a97453a0?auto=format&fit=crop&w=800&h=600"
+  },
+  {
+    id: "sovi_l2",
+    name: "Vegetable Soup",
+    description: "Hearty vegetable soup made with fresh seasonal vegetables.",
+    ingredients: "Vegetable broth, carrots, celery, onions, tomatoes, green beans, potatoes, herbs",
+    category: "Side",
+    dietaryInfo: ["Vegetarian", "Vegan", "Gluten-Free"],
+    mealPeriod: "Lunch",
+    diningHallId: "1601",
+    averageRating: 4.1,
+    ratingsCount: 62,
+    image: "https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=800&h=600"
+  },
+  {
+    id: "sovi_l3",
+    name: "Cheese Pizza",
+    description: "Fresh-baked pizza with mozzarella cheese and tomato sauce.",
+    ingredients: "Pizza dough, tomato sauce, mozzarella cheese, olive oil, Italian herbs",
+    category: "Entree",
+    dietaryInfo: ["Vegetarian"],
+    mealPeriod: "Lunch",
+    diningHallId: "1601",
+    averageRating: 4.4,
+    ratingsCount: 108,
+    image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=800&h=600"
+  },
+  
+  // Dinner Items - SoVi Dining Hall
+  {
+    id: "sovi_d1",
+    name: "Spaghetti and Meatballs",
+    description: "Classic spaghetti pasta topped with marinara sauce and beef meatballs.",
+    ingredients: "Spaghetti pasta, beef meatballs, marinara sauce, parmesan cheese, garlic, herbs",
+    category: "Entree",
+    dietaryInfo: [],
+    mealPeriod: "Dinner",
+    diningHallId: "1601",
+    averageRating: 4.6,
+    ratingsCount: 87,
+    image: "https://images.unsplash.com/photo-1551892374-ecf8754cf8b0?auto=format&fit=crop&w=800&h=600"
+  },
+  {
+    id: "sovi_d2",
+    name: "Vegetable Lasagna",
+    description: "Layered pasta with ricotta cheese, spinach, and roasted vegetables.",
+    ingredients: "Lasagna noodles, ricotta cheese, spinach, zucchini, bell peppers, marinara sauce, mozzarella cheese",
+    category: "Entree",
+    dietaryInfo: ["Vegetarian"],
+    mealPeriod: "Dinner",
+    diningHallId: "1601",
+    averageRating: 4.3,
+    ratingsCount: 74,
+    image: "https://images.unsplash.com/photo-1574894986120-ea873a2424f7?auto=format&fit=crop&w=800&h=600"
+  },
+  {
+    id: "sovi_d3",
+    name: "Garlic Bread",
+    description: "Toasted French bread with garlic butter and herbs.",
+    ingredients: "French bread, butter, garlic, parsley, Italian seasoning",
+    category: "Side",
+    dietaryInfo: ["Vegetarian"],
+    mealPeriod: "Dinner",
+    diningHallId: "1601",
+    averageRating: 4.7,
+    ratingsCount: 92,
+    image: "https://images.unsplash.com/photo-1573140401552-3fab0b24306f?auto=format&fit=crop&w=800&h=600"
+  }
+];
+
+// Helper function to get menu items for a specific dining hall and meal period
+export const getMenuItemsByDiningHallAndMeal = (diningHallId: string, mealPeriod: MealPeriod): MenuItem[] => {
+  return menuItems.filter((item) => item.diningHallId === diningHallId && item.mealPeriod === mealPeriod);
+};
+
+// Get historical ratings for a menu item (mock data)
+export const getHistoricalRatings = (menuItemId: string): HistoricalRating[] => {
+  // Create mock historical data - 14 days
+  const today = new Date();
+  const ratings: HistoricalRating[] = [];
+  
+  for (let i = 13; i >= 0; i--) {
+    const date = new Date();
+    date.setDate(today.getDate() - i);
+    
+    // Generate random rating between 3.0 and 5.0
+    const randomRating = Math.round((3 + Math.random() * 2) * 10) / 10;
+    
+    ratings.push({
+      date: date.toISOString().split('T')[0],
+      averageRating: randomRating,
+      count: Math.floor(Math.random() * 20) + 5, // 5-25 ratings per day
+    });
+  }
+  
+  return ratings;
+};
+
+// Update average ratings when a user rates an item
+export const updateAverageRatings = (): void => {
+  // In a real app, this would update ratings from the backend
+  // For the mock, we'll just make a small random adjustment
+  
+  menuItems.forEach((item) => {
+    // Random adjustment between -0.2 and +0.2
+    const adjustment = (Math.random() * 0.4) - 0.2;
+    
+    // Ensure rating stays within 1-5 range
+    let newRating = item.averageRating + adjustment;
+    if (newRating > 5) newRating = 5;
+    if (newRating < 1) newRating = 1;
+    
+    item.averageRating = parseFloat(newRating.toFixed(1));
+    item.ratingsCount += Math.floor(Math.random() * 3); // Add 0-2 new ratings
+  });
+};
+
