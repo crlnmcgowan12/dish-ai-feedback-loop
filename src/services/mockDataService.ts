@@ -1,5 +1,6 @@
-
 import { DiningHall, MenuItem, HistoricalRating, MealPeriod } from '../types';
+import { getScrapedMenuItems, getScrapedMenuItemsByDiningHallAndMeal } from './menuScraperService';
+import { getRatings } from './ratingsService';
 
 // Dining halls organized by university ID
 export const universityDiningHalls: Record<string, DiningHall[]> = {
@@ -546,9 +547,23 @@ export const menuItems: MenuItem[] = [
   }
 ];
 
-// Helper function to get menu items for a specific dining hall and meal period
-export const getMenuItemsByDiningHallAndMeal = (diningHallId: string, mealPeriod: MealPeriod): MenuItem[] => {
-  return menuItems.filter((item) => item.diningHallId === diningHallId && item.mealPeriod === mealPeriod);
+// Get menu items by dining hall ID and meal period
+export const getMenuItemsByDiningHallAndMeal = (
+  diningHallId: string,
+  mealPeriod: MealPeriod
+): MenuItem[] => {
+  // First check for scraped menu items
+  const scrapedItems = getScrapedMenuItemsByDiningHallAndMeal(diningHallId, mealPeriod);
+  
+  // If we have scraped items, return those
+  if (scrapedItems.length > 0) {
+    return scrapedItems;
+  }
+  
+  // Otherwise fall back to predefined menu items
+  return menuItems.filter(
+    (item) => item.diningHallId === diningHallId && item.mealPeriod === mealPeriod
+  );
 };
 
 // Get historical ratings for a menu item (mock data)
@@ -592,4 +607,3 @@ export const updateAverageRatings = (): void => {
     item.ratingsCount += Math.floor(Math.random() * 3); // Add 0-2 new ratings
   });
 };
-

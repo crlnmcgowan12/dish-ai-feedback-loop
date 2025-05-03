@@ -40,6 +40,13 @@ const Index: React.FC = () => {
   const handleMenuLinkSaved = (updatedUniversity: University) => {
     setSelectedUniversity(updatedUniversity);
   };
+  
+  const handleMenuScraped = () => {
+    // Refresh dining halls to trigger re-render of menu items
+    if (selectedUniversity) {
+      setDiningHalls(getDiningHallsByUniversity(selectedUniversity.id));
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-campus-background">
@@ -69,6 +76,7 @@ const Index: React.FC = () => {
               <UniversityMenuLink 
                 university={selectedUniversity}
                 onMenuLinkSaved={handleMenuLinkSaved}
+                onMenuScraped={handleMenuScraped}
               />
             </div>
 
