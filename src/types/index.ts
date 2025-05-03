@@ -51,6 +51,8 @@ export interface University {
   name: string;
   state: string;
   city: string;
+  menuLink?: string; // Added menu link field
+  isFavorite?: boolean; // Added favorite status
 }
 
 // Enums

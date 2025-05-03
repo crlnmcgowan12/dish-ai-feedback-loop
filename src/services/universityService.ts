@@ -1,8 +1,24 @@
 
 import { University } from "../types";
 
+// Storage keys
+const FAVORITE_UNIVERSITIES_KEY = 'campusDish_favoriteUniversities';
+const UNIVERSITY_MENU_LINKS_KEY = 'campusDish_universityMenuLinks';
+
+// Helper function to get favorite universities from local storage
+const getFavoriteUniversities = (): string[] => {
+  const stored = localStorage.getItem(FAVORITE_UNIVERSITIES_KEY);
+  return stored ? JSON.parse(stored) : [];
+};
+
+// Helper function to get menu links from local storage
+const getUniversityMenuLinks = (): Record<string, string> => {
+  const stored = localStorage.getItem(UNIVERSITY_MENU_LINKS_KEY);
+  return stored ? JSON.parse(stored) : {};
+};
+
 // List of popular US colleges
-export const universities: University[] = [
+const universityList: University[] = [
   { id: "1", name: "Harvard University", state: "Massachusetts", city: "Cambridge" },
   { id: "2", name: "Stanford University", state: "California", city: "Stanford" },
   { id: "3", name: "Massachusetts Institute of Technology", state: "Massachusetts", city: "Cambridge" },
@@ -25,8 +41,75 @@ export const universities: University[] = [
   { id: "20", name: "University of Chicago", state: "Illinois", city: "Chicago" },
 ];
 
+// Enrich university data with favorites and menu links
+const enrichUniversityData = (): University[] => {
+  const favoriteIds = getFavoriteUniversities();
+  const menuLinks = getUniversityMenuLinks();
+  
+  return universityList.map(university => ({
+    ...university,
+    isFavorite: favoriteIds.includes(university.id),
+    menuLink: menuLinks[university.id]
+  }));
+};
+
+// Export the enriched universities list
+export const universities: University[] = enrichUniversityData();
+
+// Toggle favorite status for a university
+export const toggleFavoriteUniversity = (universityId: string): University => {
+  const favoriteIds = getFavoriteUniversities();
+  
+  // Toggle the favorite status
+  const isCurrentlyFavorite = favoriteIds.includes(universityId);
+  
+  let newFavoriteIds: string[];
+  if (isCurrentlyFavorite) {
+    // Remove from favorites
+    newFavoriteIds = favoriteIds.filter(id => id !== universityId);
+  } else {
+    // Add to favorites
+    newFavoriteIds = [...favoriteIds, universityId];
+  }
+  
+  // Save to localStorage
+  localStorage.setItem(FAVORITE_UNIVERSITIES_KEY, JSON.stringify(newFavoriteIds));
+  
+  // Update the in-memory university object
+  const universityIndex = universities.findIndex(u => u.id === universityId);
+  if (universityIndex >= 0) {
+    universities[universityIndex] = {
+      ...universities[universityIndex],
+      isFavorite: !isCurrentlyFavorite
+    };
+  }
+  
+  return universities[universityIndex];
+};
+
+// Save menu link for a university
+export const saveUniversityMenuLink = (universityId: string, menuLink: string): University => {
+  const menuLinks = getUniversityMenuLinks();
+  
+  // Update the menu link
+  menuLinks[universityId] = menuLink;
+  
+  // Save to localStorage
+  localStorage.setItem(UNIVERSITY_MENU_LINKS_KEY, JSON.stringify(menuLinks));
+  
+  // Update the in-memory university object
+  const universityIndex = universities.findIndex(u => u.id === universityId);
+  if (universityIndex >= 0) {
+    universities[universityIndex] = {
+      ...universities[universityIndex],
+      menuLink
+    };
+  }
+  
+  return universities[universityIndex];
+};
+
 // Get the university by its ID
 export const getUniversityById = (id: string): University | undefined => {
   return universities.find((university) => university.id === id);
 };
-

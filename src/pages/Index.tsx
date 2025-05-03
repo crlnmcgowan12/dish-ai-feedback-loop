@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import DiningHallCard from '../components/DiningHallCard';
 import UniversitySelector from '../components/UniversitySelector';
+import UniversityMenuLink from '../components/UniversityMenuLink';
 import { getDiningHallsByUniversity } from '../services/mockDataService';
 import { University, DiningHall } from '../types';
 import { universities } from '../services/universityService';
@@ -36,6 +37,10 @@ const Index: React.FC = () => {
     });
   };
 
+  const handleMenuLinkSaved = (updatedUniversity: University) => {
+    setSelectedUniversity(updatedUniversity);
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-campus-background">
       <Navbar />
@@ -61,6 +66,10 @@ const Index: React.FC = () => {
               <p className="text-gray-600">
                 {selectedUniversity.city}, {selectedUniversity.state}
               </p>
+              <UniversityMenuLink 
+                university={selectedUniversity}
+                onMenuLinkSaved={handleMenuLinkSaved}
+              />
             </div>
 
             <section className="mb-8">
