@@ -30,9 +30,20 @@ export const scrapeMenuFromWebsite = async (
     // Save to local storage
     saveScrapedMenuItems(diningHallId, scrapedItems);
     
+    toast({
+      title: "Menu Imported",
+      description: `Successfully imported ${scrapedItems.length} menu items.`,
+      variant: "success"
+    });
+    
     return scrapedItems;
   } catch (error) {
     console.error('Error scraping menu:', error);
+    toast({
+      title: "Import Failed",
+      description: "Failed to import menu items from the provided link.",
+      variant: "destructive"
+    });
     return null;
   }
 };

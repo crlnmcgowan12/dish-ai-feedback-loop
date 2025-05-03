@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getMenuItemsByDiningHallAndMeal, diningHalls, updateAverageRatings } from '../services/mockDataService';
@@ -8,6 +7,8 @@ import MenuItemCard from '../components/MenuItemCard';
 import MealTabs from '../components/MealTabs';
 import { Button } from '../components/ui/button';
 import { AspectRatio } from '../components/ui/aspect-ratio';
+import { getScrapedMenuItemsByDiningHallAndMeal } from '../services/menuScraperService';
+import { toast } from '../hooks/use-toast';
 
 const DiningHallPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -29,8 +30,21 @@ const DiningHallPage: React.FC = () => {
   // Load menu items for the selected dining hall and meal
   useEffect(() => {
     if (id) {
-      const items = getMenuItemsByDiningHallAndMeal(id, activeMeal);
-      setMenuItems(items);
+      // First check for scraped menu items
+      const scrapedItems = getScrapedMenuItemsByDiningHallAndMeal(id, activeMeal);
+      
+      if (scrapedItems.length > 0) {
+        // If we have scraped items, use those
+        setMenuItems(scrapedItems);
+        toast({
+          title: "Using Imported Menu",
+          description: `Showing ${scrapedItems.length} imported menu items for ${activeMeal.toLowerCase()}.`,
+        });
+      } else {
+        // Otherwise fall back to mock data
+        const mockItems = getMenuItemsByDiningHallAndMeal(id, activeMeal);
+        setMenuItems(mockItems);
+      }
     }
   }, [id, activeMeal]);
 
@@ -44,8 +58,17 @@ const DiningHallPage: React.FC = () => {
     // Update all ratings and refresh menu items
     updateAverageRatings();
     if (id) {
-      const items = getMenuItemsByDiningHallAndMeal(id, activeMeal);
-      setMenuItems(items);
+      // First check for scraped menu items
+      const scrapedItems = getScrapedMenuItemsByDiningHallAndMeal(id, activeMeal);
+      
+      if (scrapedItems.length > 0) {
+        // If we have scraped items, use those
+        setMenuItems(scrapedItems);
+      } else {
+        // Otherwise fall back to mock data
+        const items = getMenuItemsByDiningHallAndMeal(id, activeMeal);
+        setMenuItems(items);
+      }
     }
   };
 
