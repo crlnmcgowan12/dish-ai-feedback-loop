@@ -1,75 +1,74 @@
 
-import React, { useState } from 'react';
-import { toast } from 'sonner';
-import { saveRating } from '../services/mockDataService';
+import { useState, useEffect } from 'react';
+import { Star } from 'lucide-react';
+import { saveRating } from '../services/ratingsService';
 
 interface StarRatingProps {
   menuItemId: string;
   initialRating?: number;
-  size?: 'sm' | 'md' | 'lg';
+  size: 'sm' | 'md' | 'lg';
   readOnly?: boolean;
-  onRatingChange?: (rating: number) => void;
+  onRatingChange?: () => void;
 }
 
-const StarRating: React.FC<StarRatingProps> = ({
+const StarRating = ({
   menuItemId,
   initialRating = 0,
   size = 'md',
   readOnly = false,
-  onRatingChange,
-}) => {
-  const [rating, setRating] = useState<number>(initialRating);
-  const [hoveredRating, setHoveredRating] = useState<number>(0);
+  onRatingChange
+}: StarRatingProps) => {
+  const [rating, setRating] = useState<number>(0);
+  const [hover, setHover] = useState<number | null>(null);
 
-  const handleClick = (selectedRating: number) => {
-    if (readOnly) return;
+  useEffect(() => {
+    setRating(initialRating);
+  }, [initialRating]);
 
-    setRating(selectedRating);
-    if (onRatingChange) onRatingChange(selectedRating);
-    
-    // Save the rating
-    saveRating(menuItemId, selectedRating);
-    toast.success('Rating saved!');
+  const sizes = {
+    sm: {
+      starSize: 16,
+      gap: 1
+    },
+    md: {
+      starSize: 20,
+      gap: 2
+    },
+    lg: {
+      starSize: 24,
+      gap: 3
+    }
   };
 
-  const getSizeClass = () => {
-    switch (size) {
-      case 'sm':
-        return 'text-lg';
-      case 'md':
-        return 'text-xl';
-      case 'lg':
-        return 'text-2xl';
-      default:
-        return 'text-xl';
+  const handleRating = (value: number) => {
+    if (readOnly) return;
+    
+    setRating(value);
+    saveRating(menuItemId, value);
+    
+    if (onRatingChange) {
+      onRatingChange();
     }
   };
 
   return (
-    <div className="flex">
-      {[1, 2, 3, 4, 5].map((star) => (
-        <button
-          key={star}
-          type="button"
-          onClick={() => handleClick(star)}
-          onMouseEnter={() => !readOnly && setHoveredRating(star)}
-          onMouseLeave={() => !readOnly && setHoveredRating(0)}
-          disabled={readOnly}
-          className={`${getSizeClass()} ${
-            readOnly ? 'cursor-default' : 'cursor-pointer'
-          } focus:outline-none transition-colors duration-200`}
-          aria-label={`Rate ${star} stars`}
-        >
-          <span
-            className={
-              star <= (hoveredRating || rating)
-                ? 'text-yellow-500'
-                : 'text-gray-300'
-            }
-          >
-            ★
-          </span>
-        </button>
+    <div
+      className="inline-flex"
+      style={{ gap: `${sizes[size].gap}px` }}
+    >
+      {[1, 2, 3, 4, 5].map((value) => (
+        <Star
+          key={value}
+          size={sizes[size].starSize}
+          className={`cursor-${readOnly ? 'default' : 'pointer'}`}
+          fill={(hover !== null ? hover >= value : rating >= value) ? 'gold' : 'transparent'}
+          stroke={(hover !== null ? hover >= value : rating >= value) ? 'gold' : 'gray'}
+          strokeWidth={1.5}
+          onMouseEnter={() => !readOnly && setHover(value)}
+          onMouseLeave={() => !readOnly && setHover(null)}
+          onClick={() => handleRating(value)}
+          data-testid={`star-${value}`}
+        />
       ))}
     </div>
   );
