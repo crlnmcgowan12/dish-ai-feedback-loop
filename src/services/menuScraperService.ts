@@ -169,7 +169,7 @@ const generateMockScrapedItems = (diningHallId: string, url: string): MenuItem[]
   domainBasedItems['berkeley.edu'] = {
     'Breakfast': ['Golden Bear Granola', 'Berkeley Breakfast Bowl', 'Bay Area Avocado Toast', 'Cal Crêpes'],
     'Lunch': ['Telegraph Ave Tacos', 'Sproul Plaza Salad', 'Berkeley Bowl', 'Campanile Club Sandwich'],
-    'Dinner': ['California Cuisine Plate', 'Chez Panisse Inspired Entrée', 'Bears' Den Burger', 'Bay View Pasta']
+    'Dinner': ['California Cuisine Plate', 'Chez Panisse Inspired Entrée', "Bears Den Burger", 'Bay View Pasta']
   };
   
   // Determine which menu items to use based on URL
@@ -219,4 +219,3 @@ const generateMockScrapedItems = (diningHallId: string, url: string): MenuItem[]
   
   return result;
 };
-
