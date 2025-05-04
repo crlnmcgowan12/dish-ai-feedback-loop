@@ -53,9 +53,9 @@ const Index: React.FC = () => {
       <Navbar />
       <main className="container mx-auto px-4 py-8 flex-grow">
         <section className="mb-8 animate-fade-in">
-          <h1 className="text-3xl font-bold text-campus-primary mb-2">Welcome to CampusDish Insights</h1>
+          <h1 className="text-3xl font-bold text-campus-primary mb-2">University Selection</h1>
           <p className="text-gray-600">
-            Explore dining options, view menus, and rate dishes at your university's dining halls.
+            Select your university to explore dining options, view menus, and rate dishes.
           </p>
         </section>
 
