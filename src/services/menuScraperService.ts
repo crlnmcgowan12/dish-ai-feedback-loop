@@ -1,9 +1,9 @@
-
 import { MenuItem, MealPeriod } from '../types';
 import { toast } from '../hooks/use-toast';
 
 // Local storage key for scraped menu items
 const SCRAPED_MENU_ITEMS_KEY = 'campusDish_scrapedMenuItems';
+const REPORTED_LABELS_KEY = 'campusDish_reportedLabels';
 
 /**
  * Simulates extracting menu items from a website
@@ -138,232 +138,274 @@ export const getScrapedMenuItemsByDiningHallAndMeal = (
   );
 };
 
+/**
+ * Save a reported incorrect label to local storage
+ */
+export const reportIncorrectLabel = (
+  menuItemId: string,
+  reportType: 'missing' | 'incorrect',
+  dietaryLabel: string
+): void => {
+  const reportedLabels = getReportedLabels();
+  
+  // Add the new report
+  reportedLabels.push({
+    menuItemId,
+    reportType,
+    dietaryLabel,
+    timestamp: new Date().toISOString(),
+    resolved: false
+  });
+  
+  // Save to localStorage
+  localStorage.setItem(REPORTED_LABELS_KEY, JSON.stringify(reportedLabels));
+  
+  toast({
+    title: "Thank you for your feedback",
+    description: "We'll review the dietary information for this item.",
+    variant: "default"
+  });
+};
+
+/**
+ * Get all reported labels from local storage
+ */
+export const getReportedLabels = (): Array<{
+  menuItemId: string;
+  reportType: 'missing' | 'incorrect';
+  dietaryLabel: string;
+  timestamp: string;
+  resolved: boolean;
+}> => {
+  const stored = localStorage.getItem(REPORTED_LABELS_KEY);
+  return stored ? JSON.parse(stored) : [];
+};
+
+/**
+ * Analyzes ingredients to determine dietary restrictions
+ */
+const analyzeDietaryRestrictions = (ingredients: string): string[] => {
+  const ingredientsLower = ingredients.toLowerCase();
+  const dietaryLabels: string[] = [];
+  
+  // Check for vegetarian
+  const nonVegetarianIngredients = [
+    'beef', 'chicken', 'pork', 'turkey', 'lamb', 'veal', 'ham', 
+    'bacon', 'sausage', 'fish', 'salmon', 'tuna', 'shrimp', 'crab', 
+    'lobster', 'clam', 'oyster', 'scallop', 'meat', 'gelatin'
+  ];
+  
+  const hasNonVegetarianIngredient = nonVegetarianIngredients.some(ingredient => 
+    ingredientsLower.includes(ingredient)
+  );
+  
+  if (!hasNonVegetarianIngredient) {
+    dietaryLabels.push('Vegetarian');
+    
+    // If it's vegetarian, check if it's vegan too
+    const nonVeganIngredients = [
+      'milk', 'cheese', 'butter', 'cream', 'yogurt', 'egg', 
+      'honey', 'mayo', 'mayonnaise', 'whey', 'casein'
+    ];
+    
+    const hasNonVeganIngredient = nonVeganIngredients.some(ingredient => 
+      ingredientsLower.includes(ingredient)
+    );
+    
+    if (!hasNonVeganIngredient) {
+      dietaryLabels.push('Vegan');
+    }
+  }
+  
+  // Check for gluten-free
+  const glutenContainingIngredients = [
+    'wheat', 'barley', 'rye', 'flour', 'pasta', 'bread', 
+    'biscuit', 'cookie', 'cracker', 'cereal', 'oats', 'beer'
+  ];
+  
+  const hasGlutenIngredient = glutenContainingIngredients.some(ingredient => 
+    ingredientsLower.includes(ingredient)
+  );
+  
+  if (!hasGlutenIngredient) {
+    dietaryLabels.push('Gluten-Free');
+  }
+  
+  return dietaryLabels;
+};
+
 // Helper function to generate detailed mock menu items
 const generateDetailedMenuItems = (diningHallId: string, url: string): MenuItem[] => {
   const mealPeriods: MealPeriod[] = ['Breakfast', 'Lunch', 'Dinner'];
   
   // Enhanced ingredients and dietary information data
-  const foodDetails: Record<string, {ingredients: string, dietary: string[]}> = {
+  const foodDetails: Record<string, {ingredients: string, dietary?: string[]}> = {
     // Breakfast items
     "Pancakes": {
-      ingredients: "Flour, eggs, milk, butter, baking powder, sugar, vanilla extract",
-      dietary: ["Vegetarian"]
+      ingredients: "Flour, eggs, milk, butter, baking powder, sugar, vanilla extract"
     },
     "Omelette Station": {
-      ingredients: "Eggs, cheese, bell peppers, onions, mushrooms, spinach, tomatoes, ham (optional)",
-      dietary: []
+      ingredients: "Eggs, cheese, bell peppers, onions, mushrooms, spinach, tomatoes, ham (optional)"
     },
     "Breakfast Burrito": {
-      ingredients: "Flour tortilla, scrambled eggs, cheese, black beans, salsa, avocado",
-      dietary: ["Vegetarian"]
+      ingredients: "Flour tortilla, scrambled eggs, cheese, black beans, salsa, avocado"
     },
     "Oatmeal Bar": {
-      ingredients: "Steel-cut oats, water, milk, cinnamon, brown sugar, berries, nuts, honey",
-      dietary: ["Vegan", "Gluten-Free"]
+      ingredients: "Steel-cut oats, water, milk, cinnamon, brown sugar, berries, nuts, honey"
     },
     "Fresh Fruit": {
-      ingredients: "Seasonal selection of fresh fruit including apples, oranges, bananas, berries",
-      dietary: ["Vegan", "Gluten-Free"]
+      ingredients: "Seasonal selection of fresh fruit including apples, oranges, bananas, berries"
     },
     "Breakfast Sandwich": {
-      ingredients: "English muffin, fried egg, bacon, cheese, tomato",
-      dietary: []
+      ingredients: "English muffin, fried egg, bacon, cheese, tomato"
     },
     "Harvard Square Pancakes": {
-      ingredients: "Flour, eggs, milk, butter, maple syrup, blueberries, powdered sugar",
-      dietary: ["Vegetarian"]
+      ingredients: "Flour, eggs, milk, butter, maple syrup, blueberries, powdered sugar"
     },
     "Cambridge Omelette": {
-      ingredients: "Free-range eggs, artisanal cheese, baby spinach, heirloom tomatoes, herbs",
-      dietary: ["Vegetarian", "Gluten-Free"]
+      ingredients: "Free-range eggs, artisanal cheese, baby spinach, heirloom tomatoes, herbs"
     },
     "Veritas Breakfast Bowl": {
-      ingredients: "Quinoa, poached egg, avocado, roasted sweet potato, kale, olive oil",
-      dietary: ["Vegetarian", "Gluten-Free"]
+      ingredients: "Quinoa, poached egg, avocado, roasted sweet potato, kale, olive oil"
     },
     "Crimson Yogurt Parfait": {
-      ingredients: "Greek yogurt, house-made granola, local honey, fresh berries, mint",
-      dietary: ["Vegetarian"]
+      ingredients: "Greek yogurt, house-made granola, local honey, fresh berries, mint"
     },
     "Cardinal Morning Bowl": {
-      ingredients: "Acai base, granola, banana, strawberry, blueberry, coconut, honey",
-      dietary: ["Vegetarian"]
+      ingredients: "Acai base, granola, banana, strawberry, blueberry, coconut, honey"
     },
     "Palo Alto Pancakes": {
-      ingredients: "Buttermilk, eggs, vanilla, flour, maple syrup, butter, seasonal berries",
-      dietary: ["Vegetarian"]
+      ingredients: "Buttermilk, eggs, vanilla, flour, maple syrup, butter, seasonal berries"
     },
     "Silicon Valley Smoothies": {
-      ingredients: "Almond milk, banana, spinach, protein powder, chia seeds, almond butter",
-      dietary: ["Vegan", "Gluten-Free"]
+      ingredients: "Almond milk, banana, spinach, protein powder, chia seeds, almond butter"
     },
     "Stanford Sunrise Wrap": {
-      ingredients: "Whole wheat tortilla, scrambled eggs, avocado, black beans, salsa fresca",
-      dietary: ["Vegetarian"]
+      ingredients: "Whole wheat tortilla, scrambled eggs, avocado, black beans, salsa fresca"
     },
     "Golden Bear Granola": {
-      ingredients: "Rolled oats, honey, almonds, walnuts, pumpkin seeds, dried cranberries, cinnamon",
-      dietary: ["Vegetarian"]
+      ingredients: "Rolled oats, honey, almonds, walnuts, pumpkin seeds, dried cranberries, cinnamon"
     },
     "Berkeley Breakfast Bowl": {
-      ingredients: "Brown rice, poached eggs, avocado, roasted vegetables, tahini sauce",
-      dietary: ["Vegetarian", "Gluten-Free"]
+      ingredients: "Brown rice, poached eggs, avocado, roasted vegetables, tahini sauce"
     },
     "Bay Area Avocado Toast": {
-      ingredients: "Sourdough bread, smashed avocado, micro greens, olive oil, sea salt, poached egg",
-      dietary: ["Vegetarian"]
+      ingredients: "Sourdough bread, smashed avocado, micro greens, olive oil, sea salt, poached egg"
     },
     "Cal Crêpes": {
-      ingredients: "Flour, eggs, milk, butter, fresh seasonal berries, whipped cream, maple syrup",
-      dietary: ["Vegetarian"]
+      ingredients: "Flour, eggs, milk, butter, fresh seasonal berries, whipped cream, maple syrup"
     },
     
     // Lunch items
     "Pizza Station": {
-      ingredients: "House-made dough, tomato sauce, mozzarella cheese, various toppings",
-      dietary: ["Vegetarian"]
+      ingredients: "House-made dough, tomato sauce, mozzarella cheese, various toppings"
     },
     "Burger Bar": {
-      ingredients: "Beef patty, brioche bun, lettuce, tomato, onion, pickles, American cheese",
-      dietary: []
+      ingredients: "Beef patty, brioche bun, lettuce, tomato, onion, pickles, American cheese"
     },
     "Salad Bar": {
-      ingredients: "Mixed greens, cherry tomatoes, cucumber, carrots, bell peppers, various dressings",
-      dietary: ["Vegan", "Gluten-Free"]
+      ingredients: "Mixed greens, cherry tomatoes, cucumber, carrots, bell peppers, various dressings"
     },
     "Sandwich Station": {
-      ingredients: "Artisan bread, deli meats, cheeses, lettuce, tomato, onion, condiments",
-      dietary: []
+      ingredients: "Artisan bread, deli meats, cheeses, lettuce, tomato, condiments"
     },
     "Soup of the Day": {
-      ingredients: "Varies daily - check with server for ingredients and allergens",
-      dietary: []
+      ingredients: "Varies daily - check with server for ingredients and allergens"
     },
     "Pasta Bar": {
-      ingredients: "Assorted pastas, marinara sauce, alfredo sauce, garlic, herbs, parmesan cheese",
-      dietary: ["Vegetarian"]
+      ingredients: "Assorted pastas, marinara sauce, alfredo sauce, garlic, herbs, parmesan cheese"
     },
     "Harvard Club Sandwich": {
-      ingredients: "Multi-grain bread, smoked turkey, avocado, bacon, lettuce, tomato, aioli",
-      dietary: []
+      ingredients: "Multi-grain bread, smoked turkey, avocado, bacon, lettuce, tomato, aioli"
     },
     "Quincy House Salad": {
-      ingredients: "Mixed greens, grilled chicken, goat cheese, dried cranberries, candied walnuts, balsamic vinaigrette",
-      dietary: ["Gluten-Free"]
+      ingredients: "Mixed greens, grilled chicken, goat cheese, dried cranberries, candied walnuts, balsamic vinaigrette"
     },
     "Academic Bowl Soup": {
-      ingredients: "Vegetable broth, seasonal vegetables, barley, herbs, olive oil",
-      dietary: ["Vegan"]
+      ingredients: "Vegetable broth, seasonal vegetables, barley, herbs, olive oil"
     },
     "John Harvard Burger": {
-      ingredients: "Grass-fed beef, brioche bun, aged cheddar, caramelized onions, special sauce",
-      dietary: []
+      ingredients: "Grass-fed beef, brioche bun, aged cheddar, caramelized onions, special sauce"
     },
     "Tree House Salad": {
-      ingredients: "Spring mix, grilled tofu, edamame, shredded carrots, avocado, sesame ginger dressing",
-      dietary: ["Vegan", "Gluten-Free"]
+      ingredients: "Spring mix, grilled tofu, edamame, shredded carrots, avocado, sesame ginger dressing"
     },
     "Memorial Court Sandwich": {
-      ingredients: "Focaccia bread, roasted turkey, brie cheese, green apple, honey mustard",
-      dietary: []
+      ingredients: "Focaccia bread, roasted turkey, brie cheese, green apple, honey mustard"
     },
     "Stanford GSB Burger": {
-      ingredients: "Grass-fed beef, artisanal roll, arugula, tomato jam, aged white cheddar",
-      dietary: []
+      ingredients: "Grass-fed beef, artisanal roll, arugula, tomato jam, aged white cheddar"
     },
     "Computer Science Curry": {
-      ingredients: "Basmati rice, chickpeas, spinach, tomato, onion, garlic, ginger, curry spices, coconut milk",
-      dietary: ["Vegan", "Gluten-Free"]
+      ingredients: "Basmati rice, chickpeas, spinach, tomato, onion, garlic, ginger, curry spices, coconut milk"
     },
     "Telegraph Ave Tacos": {
-      ingredients: "Corn tortillas, seasoned black beans, avocado, salsa verde, cilantro, lime",
-      dietary: ["Vegan", "Gluten-Free"]
+      ingredients: "Corn tortillas, seasoned black beans, avocado, salsa verde, cilantro, lime"
     },
     "Sproul Plaza Salad": {
-      ingredients: "Local greens, quinoa, roasted seasonal vegetables, goat cheese, balsamic vinaigrette",
-      dietary: ["Vegetarian", "Gluten-Free"]
+      ingredients: "Local greens, quinoa, roasted seasonal vegetables, goat cheese, balsamic vinaigrette"
     },
     "Berkeley Bowl": {
-      ingredients: "Brown rice, roasted sweet potatoes, kale, avocado, tempeh, tahini dressing",
-      dietary: ["Vegan", "Gluten-Free"]
+      ingredients: "Brown rice, roasted sweet potatoes, kale, avocado, tempeh, tahini dressing"
     },
     "Campanile Club Sandwich": {
-      ingredients: "Sourdough bread, roasted turkey, bacon, avocado, greens, tomato, garlic aioli",
-      dietary: []
+      ingredients: "Sourdough bread, roasted turkey, bacon, avocado, greens, tomato, garlic aioli"
     },
     
     // Dinner items
     "Carved Turkey": {
-      ingredients: "Roasted turkey breast, herb gravy, cranberry sauce",
-      dietary: ["Gluten-Free"]
+      ingredients: "Roasted turkey breast, herb gravy, cranberry sauce"
     },
     "Vegetable Stir Fry": {
-      ingredients: "Assorted vegetables, tofu, soy sauce, ginger, garlic, sesame oil",
-      dietary: ["Vegan"]
+      ingredients: "Assorted vegetables, tofu, soy sauce, ginger, garlic, sesame oil"
     },
     "Pasta Alfredo": {
-      ingredients: "Fettuccine pasta, heavy cream, butter, parmesan cheese, garlic, parsley",
-      dietary: ["Vegetarian"]
+      ingredients: "Fettuccine pasta, heavy cream, butter, parmesan cheese, garlic, parsley"
     },
     "Roasted Vegetables": {
-      ingredients: "Seasonal vegetables, olive oil, garlic, herbs, salt, pepper",
-      dietary: ["Vegan", "Gluten-Free"]
+      ingredients: "Seasonal vegetables, olive oil, garlic, herbs, salt, pepper"
     },
     "Grilled Salmon": {
-      ingredients: "Atlantic salmon fillet, lemon, dill, butter, salt, pepper",
-      dietary: ["Gluten-Free"]
+      ingredients: "Atlantic salmon fillet, lemon, dill, butter, salt, pepper"
     },
     "Taco Bar": {
-      ingredients: "Corn and flour tortillas, seasoned beef, lettuce, tomatoes, cheese, sour cream, salsa",
-      dietary: []
+      ingredients: "Corn and flour tortillas, seasoned beef, lettuce, tomatoes, cheese, sour cream, salsa"
     },
     "New England Clam Chowder": {
-      ingredients: "Clams, potatoes, onions, celery, bacon, heavy cream, herbs",
-      dietary: []
+      ingredients: "Clams, potatoes, onions, celery, bacon, heavy cream, herbs"
     },
     "Charles River Salmon": {
-      ingredients: "Wild-caught salmon, lemon herb butter, roasted asparagus, fingerling potatoes",
-      dietary: ["Gluten-Free"]
+      ingredients: "Wild-caught salmon, lemon herb butter, roasted asparagus, fingerling potatoes"
     },
     "Massachusetts Steak": {
-      ingredients: "Grass-fed ribeye, herb butter, roasted garlic mashed potatoes, seasonal vegetables",
-      dietary: ["Gluten-Free"]
+      ingredients: "Grass-fed ribeye, herb butter, roasted garlic mashed potatoes, seasonal vegetables"
     },
     "Widener Library Pasta": {
-      ingredients: "House-made pasta, heirloom tomato sauce, basil, parmesan, olive oil",
-      dietary: ["Vegetarian"]
+      ingredients: "House-made pasta, heirloom tomato sauce, basil, parmesan, olive oil"
     },
     "California Veggie Plate": {
-      ingredients: "Seasonal farm-to-table vegetables, quinoa, herb oil, lemon zest",
-      dietary: ["Vegan", "Gluten-Free"]
+      ingredients: "Seasonal farm-to-table vegetables, quinoa, herb oil, lemon zest"
     },
     "Cardinal Chicken": {
-      ingredients: "Free-range chicken breast, white wine sauce, herb roasted potatoes, broccolini",
-      dietary: ["Gluten-Free"]
+      ingredients: "Free-range chicken breast, white wine sauce, herb roasted potatoes, broccolini"
     },
     "Stanford Steak": {
-      ingredients: "Grass-fed New York strip, chimichurri, roasted fingerling potatoes, grilled asparagus",
-      dietary: ["Gluten-Free"]
+      ingredients: "Grass-fed New York strip, chimichurri, roasted fingerling potatoes, grilled asparagus"
     },
     "Farm to Table Specials": {
-      ingredients: "Rotating selection of dishes featuring locally sourced seasonal ingredients",
-      dietary: []
+      ingredients: "Rotating selection of dishes featuring locally sourced seasonal ingredients"
     },
     "California Cuisine Plate": {
-      ingredients: "Locally sourced vegetables, ancient grains, avocado, sprouts, citrus vinaigrette",
-      dietary: ["Vegan", "Gluten-Free"]
+      ingredients: "Locally sourced vegetables, ancient grains, avocado, sprouts, citrus vinaigrette"
     },
     "Chez Panisse Inspired Entrée": {
-      ingredients: "Seasonal organic vegetables, heirloom beans, herbs, olive oil, lemon",
-      dietary: ["Vegetarian", "Gluten-Free"]
+      ingredients: "Seasonal organic vegetables, heirloom beans, herbs, olive oil, lemon"
     },
     "Bears Den Burger": {
-      ingredients: "Grass-fed beef, brioche bun, caramelized onions, blue cheese, arugula, special sauce",
-      dietary: []
+      ingredients: "Grass-fed beef, brioche bun, caramelized onions, blue cheese, arugula, special sauce"
     },
     "Bay View Pasta": {
-      ingredients: "Fresh pasta, seasonal vegetables, white wine sauce, parmesan, herbs",
-      dietary: ["Vegetarian"]
+      ingredients: "Fresh pasta, seasonal vegetables, white wine sauce, parmesan, herbs"
     }
   };
 
@@ -429,18 +471,19 @@ const generateDetailedMenuItems = (diningHallId: string, url: string): MenuItem[
     items.forEach((itemName, index) => {
       // Use stored food details or generate default ones
       const details = foodDetails[itemName] || {
-        ingredients: `Various fresh ingredients for ${itemName.toLowerCase()}.`,
-        dietary: index % 2 === 0 ? ["Vegetarian"] : []
+        ingredients: `Various fresh ingredients for ${itemName.toLowerCase()}.`
       };
+      
+      // Analyze ingredients to determine dietary restrictions
+      const dietaryLabels = analyzeDietaryRestrictions(details.ingredients);
       
       result.push({
         id: `scraped_${diningHallId}_${domainName}_${mealPeriod}_${index}`,
         name: itemName,
         description: `Fresh ${itemName.toLowerCase()} prepared daily by our chefs.`,
         ingredients: details.ingredients,
-        // No longer using category from the original implementation
         category: "Menu Item",
-        dietaryInfo: details.dietary,
+        dietaryInfo: dietaryLabels,
         mealPeriod,
         diningHallId,
         averageRating: 0,

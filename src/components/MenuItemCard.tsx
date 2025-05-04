@@ -3,8 +3,13 @@ import React, { useEffect, useState } from 'react';
 import { MenuItem } from '../types';
 import { Card, CardContent, CardFooter, CardHeader } from './ui/card';
 import { Badge } from './ui/badge';
+import { Button } from './ui/button';
 import StarRating from './StarRating';
 import { getAverageRating, getDailyRating, getRatingsByMenuItem } from '../services/ratingsService';
+import { reportIncorrectLabel } from '../services/menuScraperService';
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
+import { Flag, AlertCircle } from 'lucide-react';
+import { toast } from '../hooks/use-toast';
 
 interface MenuItemCardProps {
   menuItem: MenuItem;
@@ -16,6 +21,7 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({ menuItem, onRatingChange })
   const [ratingsCount, setRatingsCount] = useState(menuItem.ratingsCount);
   const [dailyRating, setDailyRating] = useState(0);
   const [dailyCount, setDailyCount] = useState(0);
+  const [reportSubmitted, setReportSubmitted] = useState(false);
 
   // Update rating display whenever the component mounts or after a rating change
   useEffect(() => {
@@ -54,6 +60,26 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({ menuItem, onRatingChange })
     }
   };
 
+  // Handle reporting of incorrect dietary labels
+  const handleReportIncorrect = (dietaryLabel: string) => {
+    reportIncorrectLabel(menuItem.id, 'incorrect', dietaryLabel);
+    setReportSubmitted(true);
+    toast({
+      title: "Report Submitted",
+      description: `Thank you for reporting that "${dietaryLabel}" is incorrectly applied to this item.`,
+    });
+  };
+
+  // Handle reporting of missing dietary labels
+  const handleReportMissing = (dietaryLabel: string) => {
+    reportIncorrectLabel(menuItem.id, 'missing', dietaryLabel);
+    setReportSubmitted(true);
+    toast({
+      title: "Report Submitted",
+      description: `Thank you for reporting that "${dietaryLabel}" label is missing from this item.`,
+    });
+  };
+
   return (
     <Card className="h-full overflow-hidden hover:shadow-md transition-shadow duration-300">
       {menuItem.image && (
@@ -66,7 +92,78 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({ menuItem, onRatingChange })
         </div>
       )}
       <CardHeader className="pb-2">
-        <h3 className="text-lg font-medium">{menuItem.name}</h3>
+        <div className="flex justify-between items-start">
+          <h3 className="text-lg font-medium">{menuItem.name}</h3>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                <Flag className="h-4 w-4 text-gray-500 hover:text-red-500" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80 p-4">
+              <div className="space-y-4">
+                <div className="font-medium">Report Dietary Label Issues</div>
+                <p className="text-sm text-gray-500">
+                  Please help us improve our dietary information by reporting any incorrect or missing labels.
+                </p>
+                
+                {reportSubmitted ? (
+                  <div className="rounded-md bg-green-50 p-4">
+                    <div className="flex">
+                      <div className="text-green-700">
+                        Thank you for your feedback! We'll review this information.
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div>
+                      <div className="mb-2 font-medium text-sm">Current labels that may be incorrect:</div>
+                      <div className="flex flex-wrap gap-2">
+                        {menuItem.dietaryInfo.length > 0 ? (
+                          menuItem.dietaryInfo.map((label) => (
+                            <Badge 
+                              key={`current-${label}`} 
+                              variant="outline" 
+                              className="cursor-pointer hover:bg-red-50"
+                              onClick={() => handleReportIncorrect(label)}
+                            >
+                              {label} <AlertCircle className="h-3 w-3 ml-1 text-red-500" />
+                            </Badge>
+                          ))
+                        ) : (
+                          <span className="text-sm text-gray-500">No dietary labels currently applied.</span>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <div className="mb-2 font-medium text-sm">Labels that might be missing:</div>
+                      <div className="flex flex-wrap gap-2">
+                        {['Vegetarian', 'Vegan', 'Gluten-Free'].map((label) => (
+                          !menuItem.dietaryInfo.includes(label) && (
+                            <Badge 
+                              key={`missing-${label}`}
+                              variant="outline"
+                              className="cursor-pointer hover:bg-green-50"
+                              onClick={() => handleReportMissing(label)}
+                            >
+                              Add {label}
+                            </Badge>
+                          )
+                        ))}
+                        {['Vegetarian', 'Vegan', 'Gluten-Free'].every(label => 
+                          menuItem.dietaryInfo.includes(label)) && (
+                          <span className="text-sm text-gray-500">All common dietary labels are applied.</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </PopoverContent>
+          </Popover>
+        </div>
       </CardHeader>
       <CardContent className="pb-2">
         <p className="text-sm text-gray-600 mb-2">{menuItem.description}</p>
