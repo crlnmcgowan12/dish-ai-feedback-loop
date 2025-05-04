@@ -1,4 +1,3 @@
-
 import { Rating } from '../types';
 import { getCurrentUser, isLoggedIn } from './authService';
 import { toast } from '../hooks/use-toast';
@@ -16,6 +15,16 @@ const getDeviceId = (): string => {
     localStorage.setItem('campusDish_deviceId', deviceId);
   }
   return deviceId;
+};
+
+// Clear all ratings (for admin use only)
+export const clearAllRatings = (): void => {
+  localStorage.removeItem(RATINGS_STORAGE_KEY);
+  toast({
+    title: "Reviews cleared",
+    description: "All reviews have been removed from the system.",
+    variant: "default",
+  });
 };
 
 // Save a rating for a menu item

@@ -3,13 +3,13 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import StarRating from '../components/StarRating';
-import { getSortedRatings, getDiningHallForRating } from '../services/ratingsService';
+import { getSortedRatings, getDiningHallForRating, clearAllRatings } from '../services/ratingsService';
 import { Rating, ReviewSortOption } from '../types';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '../components/ui/pagination';
-import { ArrowUp, ArrowDown, MessageSquare, Star } from 'lucide-react';
+import { ArrowUp, ArrowDown, MessageSquare, Star, Trash2 } from 'lucide-react';
 
 const ReviewsPage: React.FC = () => {
   const [ratings, setRatings] = useState<Rating[]>([]);
@@ -25,6 +25,11 @@ const ReviewsPage: React.FC = () => {
   const handleSortChange = (option: ReviewSortOption) => {
     setSortBy(option);
     setCurrentPage(1); // Reset to first page when sort changes
+  };
+
+  const handleClearReviews = () => {
+    clearAllRatings();
+    setRatings([]); // Clear the ratings in the UI
   };
 
   // Format date for display
@@ -46,7 +51,18 @@ const ReviewsPage: React.FC = () => {
     <div className="min-h-screen flex flex-col bg-campus-background">
       <Navbar />
       <main className="container mx-auto px-4 py-8 flex-grow">
-        <h1 className="text-3xl font-bold text-campus-primary mb-6">All Reviews</h1>
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold text-campus-primary">All Reviews</h1>
+          <Button 
+            variant="destructive" 
+            size="sm" 
+            onClick={handleClearReviews}
+            className="flex items-center gap-1"
+          >
+            <Trash2 size={16} />
+            Clear All Reviews
+          </Button>
+        </div>
         
         <Card className="mb-8">
           <CardHeader className="pb-3">
