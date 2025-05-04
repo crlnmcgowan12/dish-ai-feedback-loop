@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getMenuItemsByDiningHallAndMeal, diningHalls, updateAverageRatings } from '../services/mockDataService';
@@ -20,7 +19,7 @@ const DiningHallPage: React.FC = () => {
   const [selectedDay, setSelectedDay] = useState<keyof typeof diningHall.dailyHours | null>(null);
   
   // Get current day of the week
-  const currentDay = new Date().toLocaleDateString('en-US', { weekday: 'long' }) as keyof typeof diningHall?.dailyHours;
+  const currentDay = new Date().toLocaleDateString('en-US', { weekday: 'long' }) as keyof typeof diningHall.dailyHours;
 
   // Set the current day as selected initially
   useEffect(() => {
