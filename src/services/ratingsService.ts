@@ -1,3 +1,4 @@
+
 import { Rating } from '../types';
 import { getCurrentUser, isLoggedIn } from './authService';
 import { toast } from '../hooks/use-toast';
@@ -42,6 +43,18 @@ export const saveRating = (menuItemId: string, value: number, comment?: string):
   // Get the menu item details for storing with the rating
   const menuItem = menuItems.find(item => item.id === menuItemId);
   
+  if (!menuItem) {
+    toast({
+      title: "Error",
+      description: "Menu item not found. Please try again.",
+      variant: "destructive",
+    });
+    return null;
+  }
+  
+  // Get dining hall info
+  const diningHall = diningHalls.find(hall => hall.id === menuItem.diningHallId);
+  
   // Create the new rating object
   const newRating: Rating = {
     id: `rating_${Math.random().toString(36).substring(2, 15)}`,
@@ -51,8 +64,8 @@ export const saveRating = (menuItemId: string, value: number, comment?: string):
     deviceId,
     userId: userId || undefined,
     timestamp: new Date().toISOString(),
-    menuItemName: menuItem?.name,
-    diningHallId: menuItem?.diningHallId
+    menuItemName: menuItem.name,
+    diningHallId: menuItem.diningHallId
   };
 
   // Get existing ratings from localStorage
@@ -156,7 +169,22 @@ export const getDailyRating = (menuItemId: string): { rating: number; count: num
 export const getRatings = (): Rating[] => {
   const ratingsJson = localStorage.getItem(RATINGS_STORAGE_KEY);
   if (!ratingsJson) return [];
-  return JSON.parse(ratingsJson);
+  
+  const ratings: Rating[] = JSON.parse(ratingsJson);
+  // Ensure all ratings have menuItemName and diningHallId
+  return ratings.map(rating => {
+    if (!rating.menuItemName || !rating.diningHallId) {
+      const menuItem = menuItems.find(item => item.id === rating.menuItemId);
+      if (menuItem) {
+        return {
+          ...rating,
+          menuItemName: menuItem.name,
+          diningHallId: menuItem.diningHallId
+        };
+      }
+    }
+    return rating;
+  });
 };
 
 // Get all ratings sorted by the specified option
