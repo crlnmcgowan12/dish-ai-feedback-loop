@@ -5,27 +5,56 @@ import { toast } from '../hooks/use-toast';
 // Local storage key for scraped menu items
 const SCRAPED_MENU_ITEMS_KEY = 'campusDish_scrapedMenuItems';
 
-// Function to extract menu items from a website
+/**
+ * Simulates extracting menu items from a website
+ * In a real application, this would make a backend API call
+ * Here we simulate the process for demo purposes
+ */
 export const scrapeMenuFromWebsite = async (
   url: string,
   diningHallId: string
 ): Promise<MenuItem[] | null> => {
   try {
-    // In a real application, this would make an API call to a backend service
-    // that would scrape the website. For this demo, we'll simulate scraping
-    // with a mock response after a short delay.
+    // Validate URL before proceeding
+    if (!isValidURL(url)) {
+      toast({
+        title: "Invalid URL",
+        description: "Please enter a valid website URL",
+        variant: "destructive"
+      });
+      return null;
+    }
     
-    // Simulate network request
+    // Remove trailing slash if present for consistent handling
+    const cleanUrl = url.endsWith('/') ? url.slice(0, -1) : url;
+    
+    // Simulate menu page navigation
+    toast({
+      title: "Navigating to Menu Page",
+      description: `Accessing ${new URL(cleanUrl).hostname}...`,
+    });
+    
+    await simulateNetworkDelay(800);
+    
+    // Simulate detecting dining halls
+    toast({
+      title: "Analyzing Website",
+      description: "Identifying dining hall structure...",
+    });
+    
+    await simulateNetworkDelay(1000);
+    
+    // Simulate menu extraction
     toast({
       title: "Scraping Menu",
       description: "Fetching menu items from the provided link...",
     });
     
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    await simulateNetworkDelay(1500);
     
     // Generate some random menu items based on the URL
     // This simulates what would be extracted from the website
-    const scrapedItems = generateMockScrapedItems(diningHallId);
+    const scrapedItems = generateMockScrapedItems(diningHallId, cleanUrl);
     
     // Save to local storage
     saveScrapedMenuItems(diningHallId, scrapedItems);
@@ -33,7 +62,7 @@ export const scrapeMenuFromWebsite = async (
     toast({
       title: "Menu Imported",
       description: `Successfully imported ${scrapedItems.length} menu items.`,
-      variant: "default" // Changed from "success" to "default"
+      variant: "default"
     });
     
     return scrapedItems;
@@ -46,6 +75,21 @@ export const scrapeMenuFromWebsite = async (
     });
     return null;
   }
+};
+
+// Helper to validate URLs
+const isValidURL = (url: string): boolean => {
+  try {
+    new URL(url);
+    return true;
+  } catch (e) {
+    return false;
+  }
+};
+
+// Simulate network delay
+const simulateNetworkDelay = (ms: number): Promise<void> => {
+  return new Promise(resolve => setTimeout(resolve, ms));
 };
 
 // Save scraped menu items to local storage
@@ -81,9 +125,9 @@ export const getScrapedMenuItemsByDiningHallAndMeal = (
 
 // Helper function to generate mock scraped items
 // In a real application, this would be replaced by actual scraping logic
-const generateMockScrapedItems = (diningHallId: string): MenuItem[] => {
+const generateMockScrapedItems = (diningHallId: string, url: string): MenuItem[] => {
   const mealPeriods: MealPeriod[] = ['Breakfast', 'Lunch', 'Dinner'];
-  const categories = ['Entree', 'Side', 'Dessert'];
+  const categories = ['Entree', 'Side', 'Dessert', 'Beverage'];
   const dietaryInfo = [
     ['Vegetarian'], 
     ['Vegetarian', 'Gluten-Free'], 
@@ -91,26 +135,61 @@ const generateMockScrapedItems = (diningHallId: string): MenuItem[] => {
     []
   ];
   
-  const breakfastItems = [
-    'Pancakes', 'Omelette Station', 'Breakfast Burrito', 
-    'Oatmeal Bar', 'Fresh Fruit', 'Breakfast Sandwich'
-  ];
-  
-  const lunchItems = [
-    'Pizza Station', 'Burger Bar', 'Salad Bar', 
-    'Sandwich Station', 'Soup of the Day', 'Pasta Bar'
-  ];
-  
-  const dinnerItems = [
-    'Carved Turkey', 'Vegetable Stir Fry', 'Pasta Alfredo',
-    'Roasted Vegetables', 'Grilled Salmon', 'Taco Bar'
-  ];
-  
-  const itemsByMeal = {
-    'Breakfast': breakfastItems,
-    'Lunch': lunchItems,
-    'Dinner': dinnerItems
+  // Different menu items based on the URL domain to simulate different websites having different menus
+  let domainBasedItems: Record<string, Record<MealPeriod, string[]>> = {
+    default: {
+      'Breakfast': [
+        'Pancakes', 'Omelette Station', 'Breakfast Burrito', 
+        'Oatmeal Bar', 'Fresh Fruit', 'Breakfast Sandwich'
+      ],
+      'Lunch': [
+        'Pizza Station', 'Burger Bar', 'Salad Bar', 
+        'Sandwich Station', 'Soup of the Day', 'Pasta Bar'
+      ],
+      'Dinner': [
+        'Carved Turkey', 'Vegetable Stir Fry', 'Pasta Alfredo',
+        'Roasted Vegetables', 'Grilled Salmon', 'Taco Bar'
+      ]
+    }
   };
+  
+  // Add specific domains for realistic simulation
+  domainBasedItems['harvard.edu'] = {
+    'Breakfast': ['Harvard Square Pancakes', 'Cambridge Omelette', 'Veritas Breakfast Bowl', 'Crimson Yogurt Parfait'],
+    'Lunch': ['Harvard Club Sandwich', 'Quincy House Salad', 'Academic Bowl Soup', 'John Harvard Burger'],
+    'Dinner': ['New England Clam Chowder', 'Charles River Salmon', 'Massachusetts Steak', 'Widener Library Pasta']
+  };
+  
+  domainBasedItems['stanford.edu'] = {
+    'Breakfast': ['Cardinal Morning Bowl', 'Palo Alto Pancakes', 'Silicon Valley Smoothies', 'Stanford Sunrise Wrap'],
+    'Lunch': ['Tree House Salad', 'Memorial Court Sandwich', 'Stanford GSB Burger', 'Computer Science Curry'],
+    'Dinner': ['California Veggie Plate', 'Cardinal Chicken', 'Stanford Steak', 'Farm to Table Specials']
+  };
+  
+  domainBasedItems['berkeley.edu'] = {
+    'Breakfast': ['Golden Bear Granola', 'Berkeley Breakfast Bowl', 'Bay Area Avocado Toast', 'Cal Crêpes'],
+    'Lunch': ['Telegraph Ave Tacos', 'Sproul Plaza Salad', 'Berkeley Bowl', 'Campanile Club Sandwich'],
+    'Dinner': ['California Cuisine Plate', 'Chez Panisse Inspired Entrée', 'Bears' Den Burger', 'Bay View Pasta']
+  };
+  
+  // Determine which menu items to use based on URL
+  let domainName = 'default';
+  try {
+    const hostname = new URL(url).hostname;
+    const possibleDomains = Object.keys(domainBasedItems);
+    
+    // Find matching domain name
+    for (const domain of possibleDomains) {
+      if (hostname.includes(domain)) {
+        domainName = domain;
+        break;
+      }
+    }
+  } catch (e) {
+    // Use default if URL parsing fails
+  }
+  
+  const itemsByMeal = domainBasedItems[domainName] || domainBasedItems.default;
   
   const result: MenuItem[] = [];
   
@@ -121,8 +200,9 @@ const generateMockScrapedItems = (diningHallId: string): MenuItem[] => {
       const category = categories[index % categories.length];
       const dietary = dietaryInfo[index % dietaryInfo.length];
       
+      // Use the URL domain in the ID to simulate website-specific data
       result.push({
-        id: `scraped_${diningHallId}_${mealPeriod}_${index}`,
+        id: `scraped_${diningHallId}_${domainName}_${mealPeriod}_${index}`,
         name: itemName,
         description: `Fresh ${itemName.toLowerCase()} prepared daily by our chefs.`,
         ingredients: `Various ingredients for ${itemName.toLowerCase()}.`,
@@ -139,3 +219,4 @@ const generateMockScrapedItems = (diningHallId: string): MenuItem[] => {
   
   return result;
 };
+

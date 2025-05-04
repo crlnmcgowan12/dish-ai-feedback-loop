@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
-import { Link, FileText, Download } from 'lucide-react';
+import { Link, FileText, Download, ExternalLink } from 'lucide-react';
 import { toast } from '../hooks/use-toast';
 import { University } from '../types';
 import { saveUniversityMenuLink } from '../services/universityService';
@@ -22,12 +22,33 @@ const UniversityMenuLink: React.FC<UniversityMenuLinkProps> = ({
 }) => {
   const [menuLink, setMenuLink] = useState<string>(university.menuLink || '');
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [scrapingStatus, setScrapingStatus] = useState<string>('');
+
+  // Validate URL
+  const isValidUrl = (url: string) => {
+    try {
+      new URL(url);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  };
 
   const handleSaveMenuLink = () => {
     if (!menuLink.trim()) {
       toast({
         title: "Error",
         description: "Please enter a valid menu link",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Basic URL validation
+    if (!isValidUrl(menuLink)) {
+      toast({
+        title: "Invalid URL",
+        description: "Please enter a valid URL (e.g., https://www.university.edu/dining)",
         variant: "destructive",
       });
       return;
@@ -56,6 +77,7 @@ const UniversityMenuLink: React.FC<UniversityMenuLinkProps> = ({
     }
 
     setIsLoading(true);
+    setScrapingStatus('Connecting to website...');
     
     try {
       // Get dining halls for this university
@@ -71,17 +93,28 @@ const UniversityMenuLink: React.FC<UniversityMenuLinkProps> = ({
       }
       
       // For each dining hall, scrape menu items
+      let successCount = 0;
       for (const hall of diningHalls) {
-        await scrapeMenuFromWebsite(menuLink, hall.id);
+        setScrapingStatus(`Importing menu for ${hall.name}...`);
+        const result = await scrapeMenuFromWebsite(menuLink, hall.id);
+        if (result) successCount++;
       }
       
-      toast({
-        title: "Menu Scraped Successfully",
-        description: `Menu items have been imported for ${university.name}.`,
-      });
+      if (successCount > 0) {
+        toast({
+          title: "Menu Scraped Successfully",
+          description: `Menu items have been imported for ${successCount} dining halls at ${university.name}.`,
+        });
       
-      // Notify parent component that menu has been scraped
-      onMenuScraped();
+        // Notify parent component that menu has been scraped
+        onMenuScraped();
+      } else {
+        toast({
+          title: "Warning",
+          description: "No menu items were successfully imported.",
+          variant: "destructive",
+        });
+      }
     } catch (error) {
       console.error("Error scraping menu:", error);
       toast({
@@ -91,6 +124,13 @@ const UniversityMenuLink: React.FC<UniversityMenuLinkProps> = ({
       });
     } finally {
       setIsLoading(false);
+      setScrapingStatus('');
+    }
+  };
+
+  const handleOpenMenuLink = () => {
+    if (university.menuLink) {
+      window.open(university.menuLink, '_blank', 'noopener,noreferrer');
     }
   };
 
@@ -117,15 +157,14 @@ const UniversityMenuLink: React.FC<UniversityMenuLinkProps> = ({
       
       {university.menuLink && (
         <div className="mt-3 flex flex-col space-y-2">
-          <a 
-            href={university.menuLink} 
-            target="_blank" 
-            rel="noopener noreferrer" 
-            className="text-sm text-blue-600 hover:underline flex items-center gap-1"
+          <Button 
+            variant="link" 
+            onClick={handleOpenMenuLink}
+            className="text-sm text-blue-600 hover:underline flex items-center gap-1 p-0 h-auto justify-start"
           >
-            <Link className="h-3 w-3" />
-            View current menu website
-          </a>
+            <ExternalLink className="h-3 w-3" />
+            Open menu website in new tab
+          </Button>
           
           <Button 
             variant="outline" 
@@ -135,8 +174,14 @@ const UniversityMenuLink: React.FC<UniversityMenuLinkProps> = ({
             disabled={isLoading}
           >
             <Download className="h-4 w-4" />
-            {isLoading ? "Importing Menu Data..." : "Import Menu Items From Website"}
+            {isLoading ? scrapingStatus || "Importing Menu Data..." : "Import Menu Items From Website"}
           </Button>
+          
+          {isLoading && (
+            <div className="text-xs bg-blue-50 p-2 rounded animate-pulse">
+              {scrapingStatus}
+            </div>
+          )}
           
           <p className="text-xs text-gray-500 italic">
             This will extract menu items from the university's menu website and add them to the app.
