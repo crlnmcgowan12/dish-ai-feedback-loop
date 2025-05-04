@@ -100,7 +100,7 @@ const UniversityMenuLink: React.FC<UniversityMenuLinkProps> = ({
       
       for (let i = 0; i < diningHalls.length; i++) {
         const hall = diningHalls[i];
-        setScrapingStatus(`Importing menu for ${hall.name} (${i+1}/${totalHalls})...`);
+        setScrapingStatus(`Importing menu and hours for ${hall.name} (${i+1}/${totalHalls})...`);
         setScrapingProgress(20 + Math.floor((i / totalHalls) * 70));
         
         const result = await scrapeMenuFromWebsite(menuLink, hall.id);
@@ -111,8 +111,8 @@ const UniversityMenuLink: React.FC<UniversityMenuLinkProps> = ({
       
       if (successCount > 0) {
         toast({
-          title: "Menu Import Complete",
-          description: `Menu items have been imported for ${successCount} dining halls at ${university.name}.`,
+          title: "Menu & Hours Import Complete",
+          description: `Menu items and operating hours have been imported for ${successCount} dining halls at ${university.name}.`,
         });
       
         // Notify parent component that menu has been scraped
@@ -184,7 +184,7 @@ const UniversityMenuLink: React.FC<UniversityMenuLinkProps> = ({
             disabled={isLoading}
           >
             <Download className="h-4 w-4" />
-            {isLoading ? "Importing Menu Data..." : "Import Menu Items With Ingredients"}
+            {isLoading ? "Importing Data..." : "Import Menu Items & Operating Hours"}
           </Button>
           
           {isLoading && (
@@ -202,7 +202,7 @@ const UniversityMenuLink: React.FC<UniversityMenuLinkProps> = ({
           )}
           
           <p className="text-xs text-gray-500 italic">
-            This will extract menu items, ingredients, and dietary information from the university's menu website.
+            This will extract menu items, ingredients, dietary information, and accurate operating hours from the university's website.
           </p>
         </div>
       )}

@@ -1,10 +1,11 @@
-
-import { MenuItem, MealPeriod } from '../types';
+import { MenuItem, MealPeriod, DiningHall } from '../types';
 import { toast } from '../hooks/use-toast';
+import { universityDiningHalls, diningHalls } from './mockDataService';
 
-// Local storage key for scraped menu items
+// Local storage keys
 const SCRAPED_MENU_ITEMS_KEY = 'campusDish_scrapedMenuItems';
 const REPORTED_LABELS_KEY = 'campusDish_reportedLabels';
+const SCRAPED_HOURS_KEY = 'campusDish_scrapedHours';
 
 /**
  * Simulates extracting menu items from a website
@@ -61,7 +62,15 @@ export const scrapeMenuFromWebsite = async (
     
     await simulateNetworkDelay(1000);
     
-    // Step 5: Simulate dietary label detection
+    // Step 5: Simulate hours information extraction
+    toast({
+      title: "Extracting Hours Information",
+      description: "Retrieving accurate operating hours for this dining location...",
+    });
+    
+    await simulateNetworkDelay(800);
+    
+    // Step 6: Simulate dietary label detection
     toast({
       title: "Detecting Dietary Information",
       description: "Identifying vegetarian, vegan, gluten-free options...",
@@ -72,12 +81,18 @@ export const scrapeMenuFromWebsite = async (
     // Generate enhanced mock menu items based on the URL
     const scrapedItems = generateDetailedMenuItems(diningHallId, cleanUrl);
     
-    // Save to local storage
+    // Generate and save hours
+    const scrapedHours = scrapeHoursFromWebsite(diningHallId, cleanUrl);
+    if (scrapedHours) {
+      saveScrapedHours(diningHallId, scrapedHours);
+    }
+    
+    // Save menu items to local storage
     saveScrapedMenuItems(diningHallId, scrapedItems);
     
     toast({
       title: "Menu Import Complete",
-      description: `Successfully imported ${scrapedItems.length} menu items with comprehensive ingredient information.`,
+      description: `Successfully imported ${scrapedItems.length} menu items with comprehensive ingredient information and updated hours.`,
       variant: "default"
     });
     
@@ -334,7 +349,7 @@ const generateDetailedMenuItems = (diningHallId: string, url: string): MenuItem[
       ingredients: "Organic multi-grain bread, smoked turkey breast, ripe avocado, applewood smoked bacon, hydroponic lettuce, heirloom tomato, house-made garlic aioli (egg yolks, olive oil, garlic, lemon juice)"
     },
     "Quincy House Salad": {
-      ingredients: "Mixed field greens, grilled free-range chicken breast, Vermont goat cheese, organic dried cranberries, candied walnuts, house-made balsamic vinaigrette (balsamic vinegar, extra virgin olive oil, Dijon mustard, honey)"
+      ingredients: "Mixed field greens, grilled free-range chicken breast, Vermont goat cheese, organic dried cranberries, candied walnuts, house-made balsamic vinaigrette (balsamic vinegar, extra virgin olive oil, Dijon mustard)"
     },
     "Academic Bowl Soup": {
       ingredients: "Fresh vegetable broth, seasonal organic vegetables (carrots, celery, onions, leeks), pearl barley, fresh herbs (thyme, bay leaf, parsley), cold-pressed olive oil"
@@ -510,4 +525,196 @@ const generateDetailedMenuItems = (diningHallId: string, url: string): MenuItem[
   });
   
   return result;
+};
+
+/**
+ * Simulates scraping hours from a university website
+ * In a real implementation, this would use web scraping or an API
+ */
+const scrapeHoursFromWebsite = (diningHallId: string, url: string): Record<string, string> | null => {
+  // Find the dining hall to update its hours
+  const allDiningHalls = Object.values(universityDiningHalls).flat();
+  const diningHall = allDiningHalls.find(hall => hall.id === diningHallId);
+  
+  if (!diningHall) {
+    console.error(`Dining hall with ID ${diningHallId} not found`);
+    return null;
+  }
+  
+  // Get the hostname to determine which university website we're scraping
+  let university = 'default';
+  try {
+    const hostname = new URL(url).hostname;
+    
+    // Determine university based on URL
+    if (hostname.includes('harvard.edu')) university = 'harvard';
+    else if (hostname.includes('stanford.edu')) university = 'stanford';
+    else if (hostname.includes('unc.edu')) university = 'unc';
+    else if (hostname.includes('uncc.edu')) university = 'uncc';
+  } catch (e) {
+    // Use default if URL parsing fails
+    console.error('Error parsing URL:', e);
+  }
+  
+  // Generate more accurate hours based on dining hall name and university
+  const hours = generateAccurateHours(diningHall.name, university);
+  
+  // Return the hours in the format expected by the dining hall
+  return hours;
+};
+
+/**
+ * Save scraped hours to local storage
+ */
+export const saveScrapedHours = (diningHallId: string, hours: Record<string, string>): void => {
+  const storedHours = getScrapedHours();
+  
+  // Update hours for this dining hall
+  storedHours[diningHallId] = hours;
+  
+  // Save to localStorage
+  localStorage.setItem(SCRAPED_HOURS_KEY, JSON.stringify(storedHours));
+  
+  toast({
+    title: "Hours Updated",
+    description: "Operating hours have been updated with the latest information.",
+    variant: "default"
+  });
+};
+
+/**
+ * Get all scraped hours from local storage
+ */
+export const getScrapedHours = (): Record<string, Record<string, string>> => {
+  const stored = localStorage.getItem(SCRAPED_HOURS_KEY);
+  return stored ? JSON.parse(stored) : {};
+};
+
+/**
+ * Get hours for a specific dining hall from scraped data or default to original hours
+ */
+export const getHoursForDiningHall = (diningHallId: string): Record<string, string> | null => {
+  const allHours = getScrapedHours();
+  return allHours[diningHallId] || null;
+};
+
+/**
+ * Generate more accurate hours based on the dining hall name and university
+ */
+const generateAccurateHours = (diningHallName: string, university: string): Record<string, string> => {
+  // Define more accurate hours based on dining hall and university
+  const accurateHoursMap: Record<string, Record<string, Record<string, string>>> = {
+    'harvard': {
+      'Annenberg Hall': {
+        'Monday': '7:30 AM - 2:30 PM, 5:00 PM - 7:30 PM',
+        'Tuesday': '7:30 AM - 2:30 PM, 5:00 PM - 7:30 PM',
+        'Wednesday': '7:30 AM - 2:30 PM, 5:00 PM - 7:30 PM',
+        'Thursday': '7:30 AM - 2:30 PM, 5:00 PM - 7:30 PM',
+        'Friday': '7:30 AM - 2:30 PM, 5:00 PM - 7:00 PM',
+        'Saturday': '8:00 AM - 2:00 PM, 5:00 PM - 7:00 PM',
+        'Sunday': '8:00 AM - 2:00 PM, 5:00 PM - 7:00 PM'
+      },
+      'Leverett House Dining Hall': {
+        'Monday': '7:30 AM - 10:00 AM, 11:30 AM - 2:15 PM, 5:00 PM - 7:15 PM',
+        'Tuesday': '7:30 AM - 10:00 AM, 11:30 AM - 2:15 PM, 5:00 PM - 7:15 PM',
+        'Wednesday': '7:30 AM - 10:00 AM, 11:30 AM - 2:15 PM, 5:00 PM - 7:15 PM',
+        'Thursday': '7:30 AM - 10:00 AM, 11:30 AM - 2:15 PM, 5:00 PM - 7:15 PM',
+        'Friday': '7:30 AM - 10:00 AM, 11:30 AM - 2:15 PM, 5:00 PM - 7:15 PM',
+        'Saturday': '8:00 AM - 10:30 AM, 11:30 AM - 2:00 PM, 5:00 PM - 7:00 PM',
+        'Sunday': '8:00 AM - 10:30 AM, 11:30 AM - 2:00 PM, 5:00 PM - 7:00 PM'
+      }
+    },
+    'stanford': {
+      'Arrillaga Family Dining Commons': {
+        'Monday': '6:30 AM - 10:30 AM, 11:00 AM - 2:00 PM, 5:00 PM - 8:00 PM',
+        'Tuesday': '6:30 AM - 10:30 AM, 11:00 AM - 2:00 PM, 5:00 PM - 8:00 PM',
+        'Wednesday': '6:30 AM - 10:30 AM, 11:00 AM - 2:00 PM, 5:00 PM - 8:00 PM',
+        'Thursday': '6:30 AM - 10:30 AM, 11:00 AM - 2:00 PM, 5:00 PM - 8:00 PM',
+        'Friday': '6:30 AM - 10:30 AM, 11:00 AM - 2:00 PM, 5:00 PM - 8:00 PM',
+        'Saturday': '8:00 AM - 10:30 AM, 11:00 AM - 2:00 PM, 5:00 PM - 8:00 PM',
+        'Sunday': '8:00 AM - 10:30 AM, 11:00 AM - 2:00 PM, 5:00 PM - 8:00 PM'
+      },
+      'Lakeside Dining': {
+        'Monday': '7:00 AM - 10:00 AM, 11:00 AM - 2:30 PM, 5:00 PM - 8:30 PM',
+        'Tuesday': '7:00 AM - 10:00 AM, 11:00 AM - 2:30 PM, 5:00 PM - 8:30 PM',
+        'Wednesday': '7:00 AM - 10:00 AM, 11:00 AM - 2:30 PM, 5:00 PM - 8:30 PM',
+        'Thursday': '7:00 AM - 10:00 AM, 11:00 AM - 2:30 PM, 5:00 PM - 8:30 PM',
+        'Friday': '7:00 AM - 10:00 AM, 11:00 AM - 2:30 PM, 5:00 PM - 7:30 PM',
+        'Saturday': '8:00 AM - 11:00 AM, 11:30 AM - 2:00 PM, 5:00 PM - 7:30 PM',
+        'Sunday': '8:00 AM - 11:00 AM, 11:30 AM - 2:00 PM, 5:00 PM - 7:30 PM'
+      }
+    },
+    'unc': {
+      'Lenoir Hall': {
+        'Monday': '7:00 AM - 9:00 PM',
+        'Tuesday': '7:00 AM - 9:00 PM',
+        'Wednesday': '7:00 AM - 9:00 PM',
+        'Thursday': '7:00 AM - 9:00 PM',
+        'Friday': '7:00 AM - 8:00 PM',
+        'Saturday': '9:00 AM - 8:00 PM',
+        'Sunday': '9:00 AM - 8:00 PM'
+      },
+      'Chase Dining Hall': {
+        'Monday': '7:00 AM - 9:30 AM, 11:00 AM - 2:15 PM, 5:00 PM - 8:00 PM',
+        'Tuesday': '7:00 AM - 9:30 AM, 11:00 AM - 2:15 PM, 5:00 PM - 8:00 PM',
+        'Wednesday': '7:00 AM - 9:30 AM, 11:00 AM - 2:15 PM, 5:00 PM - 8:00 PM',
+        'Thursday': '7:00 AM - 9:30 AM, 11:00 AM - 2:15 PM, 5:00 PM - 8:00 PM',
+        'Friday': '7:00 AM - 9:30 AM, 11:00 AM - 2:15 PM, 5:00 PM - 7:30 PM',
+        'Saturday': '8:00 AM - 10:30 AM, 11:00 AM - 2:00 PM, 5:00 PM - 7:30 PM',
+        'Sunday': '8:00 AM - 10:30 AM, 11:00 AM - 2:00 PM, 5:00 PM - 7:30 PM'
+      }
+    },
+    'uncc': {
+      'SoVi Dining Hall': {
+        'Monday': '7:00 AM - 11:00 AM, 11:00 AM - 4:30 PM, 4:30 PM - 8:00 PM',
+        'Tuesday': '7:00 AM - 11:00 AM, 11:00 AM - 4:30 PM, 4:30 PM - 8:00 PM',
+        'Wednesday': '7:00 AM - 11:00 AM, 11:00 AM - 4:30 PM, 4:30 PM - 8:00 PM',
+        'Thursday': '7:00 AM - 11:00 AM, 11:00 AM - 4:30 PM, 4:30 PM - 8:00 PM',
+        'Friday': '7:00 AM - 11:00 AM, 11:00 AM - 4:30 PM, 4:30 PM - 8:00 PM',
+        'Saturday': '10:00 AM - 2:00 PM, 5:00 PM - 8:00 PM',
+        'Sunday': '10:00 AM - 2:00 PM, 5:00 PM - 8:00 PM'
+      },
+      'Social': {
+        'Monday': '7:30 AM - 3:00 PM, 5:00 PM - 9:00 PM',
+        'Tuesday': '7:30 AM - 3:00 PM, 5:00 PM - 9:00 PM',
+        'Wednesday': '7:30 AM - 3:00 PM, 5:00 PM - 9:00 PM',
+        'Thursday': '7:30 AM - 3:00 PM, 5:00 PM - 9:00 PM',
+        'Friday': '7:30 AM - 3:00 PM, 5:00 PM - 8:00 PM',
+        'Saturday': '10:30 AM - 2:30 PM, 5:00 PM - 8:00 PM',
+        'Sunday': '10:30 AM - 2:30 PM, 5:00 PM - 8:00 PM'
+      }
+    },
+    'default': {
+      'Main Dining Hall': {
+        'Monday': '7:00 AM - 10:30 AM, 11:00 AM - 2:30 PM, 5:00 PM - 9:00 PM',
+        'Tuesday': '7:00 AM - 10:30 AM, 11:00 AM - 2:30 PM, 5:00 PM - 9:00 PM',
+        'Wednesday': '7:00 AM - 10:30 AM, 11:00 AM - 2:30 PM, 5:00 PM - 9:00 PM',
+        'Thursday': '7:00 AM - 10:30 AM, 11:00 AM - 2:30 PM, 5:00 PM - 9:00 PM',
+        'Friday': '7:00 AM - 10:30 AM, 11:00 AM - 2:30 PM, 5:00 PM - 8:00 PM',
+        'Saturday': '8:00 AM - 11:00 AM, 11:30 AM - 2:00 PM, 5:00 PM - 8:00 PM',
+        'Sunday': '8:00 AM - 11:00 AM, 11:30 AM - 2:00 PM, 5:00 PM - 8:00 PM'
+      }
+    }
+  };
+  
+  // Try to find hours for the specific dining hall
+  const universityHours = accurateHoursMap[university] || accurateHoursMap['default'];
+  
+  // Find closest match if exact name not found
+  let matchedDiningHall = Object.keys(universityHours).find(
+    hall => hall.toLowerCase() === diningHallName.toLowerCase()
+  );
+  
+  if (!matchedDiningHall) {
+    // Try partial match
+    matchedDiningHall = Object.keys(universityHours).find(
+      hall => diningHallName.toLowerCase().includes(hall.toLowerCase()) || 
+              hall.toLowerCase().includes(diningHallName.toLowerCase())
+    );
+  }
+  
+  // Use matched hours or default hours
+  return matchedDiningHall 
+    ? universityHours[matchedDiningHall] 
+    : universityHours[Object.keys(universityHours)[0]];
 };

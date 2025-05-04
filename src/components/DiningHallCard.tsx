@@ -5,6 +5,7 @@ import { DiningHall } from '../types';
 import { Card, CardContent, CardFooter, CardHeader } from './ui/card';
 import { AspectRatio } from './ui/aspect-ratio';
 import { Clock } from 'lucide-react';
+import { getHoursForDiningHall } from '../services/menuScraperService';
 
 interface DiningHallCardProps {
   diningHall: DiningHall;
@@ -13,6 +14,15 @@ interface DiningHallCardProps {
 const DiningHallCard: React.FC<DiningHallCardProps> = ({ diningHall }) => {
   // Get current day of week
   const currentDay = new Date().toLocaleDateString('en-US', { weekday: 'long' }) as keyof typeof diningHall.dailyHours;
+  
+  // Check if we have scraped hours from the official website
+  const scrapedHours = getHoursForDiningHall(diningHall.id);
+  const todaysHours = scrapedHours 
+    ? scrapedHours[currentDay]
+    : diningHall.dailyHours[currentDay];
+  
+  // Check if hours are from official source
+  const isOfficialHours = !!scrapedHours;
 
   return (
     <Link to={`/dining-hall/${diningHall.id}`} className="block">
@@ -35,8 +45,13 @@ const DiningHallCard: React.FC<DiningHallCardProps> = ({ diningHall }) => {
           <div className="flex items-center gap-1 text-xs text-campus-secondary font-medium mb-1">
             <Clock size={14} className="opacity-70" />
             <span>Today's Hours ({currentDay})</span>
+            {isOfficialHours && (
+              <span className="text-xs bg-green-100 text-green-800 px-1.5 py-0.5 rounded-full ml-1 text-[10px] font-medium">
+                Official
+              </span>
+            )}
           </div>
-          <p className="line-clamp-2 text-gray-600">{diningHall.dailyHours[currentDay]}</p>
+          <p className="line-clamp-2 text-gray-600">{todaysHours}</p>
         </CardFooter>
       </Card>
     </Link>

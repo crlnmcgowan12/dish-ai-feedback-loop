@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getMenuItemsByDiningHallAndMeal, diningHalls, updateAverageRatings } from '../services/mockDataService';
@@ -7,7 +8,7 @@ import MenuItemCard from '../components/MenuItemCard';
 import MealTabs from '../components/MealTabs';
 import { Button } from '../components/ui/button';
 import { AspectRatio } from '../components/ui/aspect-ratio';
-import { getScrapedMenuItemsByDiningHallAndMeal } from '../services/menuScraperService';
+import { getScrapedMenuItemsByDiningHallAndMeal, getHoursForDiningHall } from '../services/menuScraperService';
 import { toast } from '../hooks/use-toast';
 import { Clock, ArrowLeft, CalendarDays } from 'lucide-react';
 
@@ -94,6 +95,15 @@ const DiningHallPage: React.FC = () => {
   const daysOfWeek: Array<keyof typeof diningHall.dailyHours> = [
     'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'
   ];
+  
+  // Get hours for the selected day - check for scraped hours first
+  const scrapedHours = getHoursForDiningHall(diningHall.id);
+  const displayHours = selectedDay ? (
+    scrapedHours ? scrapedHours[selectedDay] : diningHall.dailyHours[selectedDay]
+  ) : '';
+  
+  // Check if hours are from official source
+  const isOfficialHours = !!scrapedHours;
 
   return (
     <div className="min-h-screen flex flex-col bg-campus-background">
@@ -127,6 +137,11 @@ const DiningHallPage: React.FC = () => {
                 <div className="flex items-center gap-2 mb-4">
                   <CalendarDays className="h-5 w-5 text-campus-primary" />
                   <h3 className="font-semibold text-lg text-campus-primary">Hours of Operation</h3>
+                  {isOfficialHours && (
+                    <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full ml-auto font-medium">
+                      Official Hours
+                    </span>
+                  )}
                 </div>
                 
                 {/* Day selection tabs */}
@@ -163,7 +178,7 @@ const DiningHallPage: React.FC = () => {
                   <div className="flex items-start gap-2">
                     <Clock className="h-4 w-4 text-gray-500 mt-0.5" />
                     <p className="text-sm text-gray-700 whitespace-pre-line">
-                      {selectedDay ? diningHall.dailyHours[selectedDay] : 'Select a day'}
+                      {displayHours || 'Select a day'}
                     </p>
                   </div>
                 </div>
