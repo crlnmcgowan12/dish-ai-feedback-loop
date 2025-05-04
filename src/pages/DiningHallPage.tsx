@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getMenuItemsByDiningHallAndMeal, diningHalls, updateAverageRatings } from '../services/mockDataService';
@@ -16,9 +17,17 @@ const DiningHallPage: React.FC = () => {
   const [activeMeal, setActiveMeal] = useState<MealPeriod>('Breakfast');
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [diningHall, setDiningHall] = useState(diningHalls.find((hall) => hall.id === id));
+  const [selectedDay, setSelectedDay] = useState<keyof typeof diningHall.dailyHours | null>(null);
   
   // Get current day of the week
-  const currentDay = new Date().toLocaleDateString('en-US', { weekday: 'long' }) as keyof typeof diningHall.dailyHours;
+  const currentDay = new Date().toLocaleDateString('en-US', { weekday: 'long' }) as keyof typeof diningHall?.dailyHours;
+
+  // Set the current day as selected initially
+  useEffect(() => {
+    if (currentDay && !selectedDay) {
+      setSelectedDay(currentDay);
+    }
+  }, [currentDay, selectedDay]);
 
   // Handle invalid IDs
   useEffect(() => {
@@ -72,9 +81,19 @@ const DiningHallPage: React.FC = () => {
     }
   };
 
+  // Handle day selection change
+  const handleDaySelection = (day: keyof typeof diningHall.dailyHours) => {
+    setSelectedDay(day);
+  };
+
   if (!diningHall) {
     return null; // Will redirect via useEffect
   }
+
+  // All days of the week for the hours display
+  const daysOfWeek: Array<keyof typeof diningHall.dailyHours> = [
+    'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'
+  ];
 
   return (
     <div className="min-h-screen flex flex-col bg-campus-background">
@@ -94,10 +113,48 @@ const DiningHallPage: React.FC = () => {
             <div className="w-full md:w-1/3 bg-white p-4 rounded-lg shadow">
               <h1 className="text-3xl font-bold text-campus-primary">{diningHall.name}</h1>
               <p className="text-gray-600 mb-2">{diningHall.location}</p>
-              <div className="p-2 border rounded my-2 bg-gray-50">
-                <h3 className="font-medium text-gray-800">Today's Hours ({currentDay})</h3>
-                <p className="text-sm text-gray-600 whitespace-pre-line">{diningHall.dailyHours[currentDay]}</p>
+              
+              {/* Hours of Operation Section */}
+              <div className="mt-4">
+                <h3 className="font-medium text-gray-800 mb-2">Hours of Operation</h3>
+                
+                {/* Day selection tabs */}
+                <div className="flex flex-wrap gap-1 mb-3">
+                  {daysOfWeek.map((day) => (
+                    <button
+                      key={day}
+                      onClick={() => handleDaySelection(day)}
+                      className={`text-xs px-2 py-1 rounded ${
+                        selectedDay === day 
+                          ? 'bg-campus-primary text-white' 
+                          : day === currentDay 
+                            ? 'bg-campus-secondary/20 text-campus-secondary' 
+                            : 'bg-gray-100 text-gray-700'
+                      } transition-colors`}
+                    >
+                      {day.slice(0, 3)}
+                    </button>
+                  ))}
+                </div>
+                
+                {/* Selected day hours */}
+                <div className="p-3 border rounded bg-gray-50">
+                  <div className="flex justify-between items-center">
+                    <h4 className="font-medium">
+                      {selectedDay === currentDay ? `Today (${selectedDay})` : selectedDay}:
+                    </h4>
+                    {selectedDay === currentDay && (
+                      <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded">
+                        Today
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-sm mt-1 whitespace-pre-line">
+                    {selectedDay ? diningHall.dailyHours[selectedDay] : 'Select a day'}
+                  </p>
+                </div>
               </div>
+              
               <Button 
                 variant="outline" 
                 onClick={() => navigate('/')}
