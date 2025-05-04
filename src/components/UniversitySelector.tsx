@@ -11,6 +11,12 @@ import {
 } from "./ui/select";
 import { Star } from 'lucide-react';
 import { Button } from './ui/button';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "./ui/tooltip";
 
 interface UniversitySelectorProps {
   selectedUniversity: University | null;
@@ -42,19 +48,28 @@ const UniversitySelector: React.FC<UniversitySelectorProps> = ({
           Select Your University
         </label>
         {selectedUniversity && (
-          <Button 
-            variant="ghost" 
-            size="sm"
-            onClick={handleFavoriteToggle}
-            className="p-1 h-auto"
-          >
-            <Star 
-              className={`h-4 w-4 ${selectedUniversity.isFavorite ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400'}`} 
-            />
-            <span className="sr-only">
-              {selectedUniversity.isFavorite ? 'Remove from favorites' : 'Add to favorites'}
-            </span>
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={handleFavoriteToggle}
+                className="p-1 h-auto"
+              >
+                <Star 
+                  className={`h-4 w-4 ${selectedUniversity.isFavorite ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400'}`} 
+                />
+                <span className="sr-only">
+                  {selectedUniversity.isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+                </span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              {selectedUniversity.isFavorite 
+                ? 'Remove from favorites' 
+                : 'Add to favorites for quick access'}
+            </TooltipContent>
+          </Tooltip>
         )}
       </div>
       <Select

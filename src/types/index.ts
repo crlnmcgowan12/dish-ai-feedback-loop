@@ -36,6 +36,7 @@ export interface Rating {
   menuItemId: string;
   value: number; // 1-5
   deviceId: string; // For anonymous ratings
+  userId?: string; // For authenticated users
   timestamp: string; // ISO format
 }
 

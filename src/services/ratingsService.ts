@@ -1,5 +1,6 @@
-
 import { Rating } from '../types';
+import { getCurrentUser, isLoggedIn } from './authService';
+import { toast } from '../hooks/use-toast';
 
 // Store ratings in localStorage
 const RATINGS_STORAGE_KEY = 'campusDish_ratings';
@@ -15,7 +16,12 @@ const getDeviceId = (): string => {
 };
 
 // Save a rating for a menu item
-export const saveRating = (menuItemId: string, value: number): Rating => {
+export const saveRating = (menuItemId: string, value: number): Rating | null => {
+  const isUserLoggedIn = isLoggedIn();
+  const currentUser = getCurrentUser();
+  
+  // If user is logged in, use their ID; otherwise use device ID
+  const userId = currentUser?.id;
   const deviceId = getDeviceId();
   
   // Create the new rating object
@@ -24,6 +30,7 @@ export const saveRating = (menuItemId: string, value: number): Rating => {
     menuItemId,
     value,
     deviceId,
+    userId: userId || undefined,
     timestamp: new Date().toISOString()
   };
 
@@ -31,10 +38,34 @@ export const saveRating = (menuItemId: string, value: number): Rating => {
   const existingRatingsJson = localStorage.getItem(RATINGS_STORAGE_KEY);
   const existingRatings: Rating[] = existingRatingsJson ? JSON.parse(existingRatingsJson) : [];
   
-  // Filter out any previous rating by this device for this menu item
-  const filteredRatings = existingRatings.filter(
-    rating => !(rating.menuItemId === menuItemId && rating.deviceId === deviceId)
-  );
+  // Check if the user has already rated this item today
+  if (isUserLoggedIn && userId) {
+    const today = new Date().toISOString().split('T')[0];
+    const userRatedToday = existingRatings.some(
+      rating => 
+        rating.menuItemId === menuItemId && 
+        rating.userId === userId && 
+        rating.timestamp.split('T')[0] === today
+    );
+    
+    if (userRatedToday) {
+      toast({
+        title: "Rating limited",
+        description: "You can only rate this item once per day. Your previous rating today has been counted.",
+        variant: "destructive",
+      });
+      return null;
+    }
+  }
+  
+  // Filter out any previous rating by this device/user for this menu item (if not logged in)
+  // If logged in, keep previous ratings to maintain history, just add the new one
+  let filteredRatings = existingRatings;
+  if (!isUserLoggedIn) {
+    filteredRatings = existingRatings.filter(
+      rating => !(rating.menuItemId === menuItemId && rating.deviceId === deviceId && !rating.userId)
+    );
+  }
   
   // Add the new rating
   const updatedRatings = [...filteredRatings, newRating];
@@ -52,6 +83,23 @@ export const getRatingsByMenuItem = (menuItemId: string): Rating[] => {
   
   const ratings: Rating[] = JSON.parse(ratingsJson);
   return ratings.filter(rating => rating.menuItemId === menuItemId);
+};
+
+// Get current user's rating for a specific menu item (if any)
+export const getUserRatingForMenuItem = (menuItemId: string): Rating | null => {
+  const currentUser = getCurrentUser();
+  if (!currentUser) return null;
+  
+  const ratingsJson = localStorage.getItem(RATINGS_STORAGE_KEY);
+  if (!ratingsJson) return null;
+  
+  const ratings: Rating[] = JSON.parse(ratingsJson);
+  // Find the most recent rating by the user for this menu item
+  const userRatings = ratings
+    .filter(rating => rating.menuItemId === menuItemId && rating.userId === currentUser.id)
+    .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+  
+  return userRatings.length > 0 ? userRatings[0] : null;
 };
 
 // Calculate average rating for a menu item
