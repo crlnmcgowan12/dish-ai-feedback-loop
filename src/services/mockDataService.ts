@@ -129,7 +129,7 @@ export const universityDiningHalls: Record<string, DiningHall[]> = {
     },
     {
       id: "1602",
-      name: "Crown Commons",
+      name: "Social",
       location: "Student Union",
       hours: "7:30 AM - 9:00 PM (Mon-Thu), 7:30 AM - 8:00 PM (Fri), 10:30 AM - 8:00 PM (Sat-Sun)",
       dailyHours: {
@@ -207,7 +207,7 @@ export const diningHalls: DiningHall[] = Object.values(universityDiningHalls).fl
 
 // Sample menu items - Updated with current menu items from DineOn Campus for UNC Charlotte
 export const menuItems: MenuItem[] = [
-  // UNC Charlotte - Crown Commons (1602) - Current menu items from DineOn Campus
+  // UNC Charlotte - Social (formerly Crown Commons) (1602) - Current menu items from DineOn Campus
   // Breakfast Items
   {
     id: "cc_b1",
