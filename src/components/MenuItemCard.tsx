@@ -187,7 +187,7 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({ menuItem, onRatingChange })
         <Button 
           variant="ghost" 
           size="sm" 
-          className="w-full text-sm flex items-center justify-center gap-1 mb-2"
+          className="w-full text-sm flex items-center justify-center gap-1 mb-1"
           onClick={toggleIngredients}
         >
           <Utensils className="h-3.5 w-3.5" />
@@ -195,9 +195,9 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({ menuItem, onRatingChange })
         </Button>
         
         {showIngredients && menuItem.ingredients && (
-          <div className="mb-3 bg-amber-50 p-2 rounded-md border border-amber-100">
-            <p className="text-xs font-medium text-amber-800">Ingredients:</p>
-            <p className="text-xs text-amber-700">{menuItem.ingredients}</p>
+          <div className="mb-3 bg-amber-50 p-3 rounded-md border border-amber-100">
+            <p className="text-xs font-medium text-amber-800 mb-1">Ingredients:</p>
+            <p className="text-xs text-amber-700 leading-relaxed">{menuItem.ingredients}</p>
           </div>
         )}
         

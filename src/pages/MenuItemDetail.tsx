@@ -10,6 +10,7 @@ import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
 import { getAverageRating, getDailyRating, getRatingsByMenuItem } from '../services/ratingsService';
+import { Utensils } from 'lucide-react';
 
 const MenuItemDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -144,6 +145,16 @@ const MenuItemDetail: React.FC = () => {
                   </Badge>
                 ))}
               </div>
+
+              {menuItem.ingredients && (
+                <div className="bg-amber-50 p-4 rounded-lg border border-amber-200 mb-6">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Utensils className="h-5 w-5 text-amber-700" />
+                    <h3 className="text-lg font-semibold text-amber-800">Ingredients</h3>
+                  </div>
+                  <p className="text-amber-900 leading-relaxed">{menuItem.ingredients}</p>
+                </div>
+              )}
 
               <div className="grid md:grid-cols-2 gap-6 mb-8">
                 <div className="bg-gradient-to-r from-blue-50 to-campus-background p-6 rounded-lg shadow-sm border border-blue-100">

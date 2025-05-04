@@ -55,8 +55,8 @@ export const scrapeMenuFromWebsite = async (
     
     // Step 4: Simulate ingredient extraction
     toast({
-      title: "Extracting Ingredient Information",
-      description: "Analyzing detailed food components and nutritional data...",
+      title: "Extracting Detailed Ingredient Information",
+      description: "Analyzing comprehensive ingredient lists and nutritional data...",
     });
     
     await simulateNetworkDelay(1000);
@@ -77,7 +77,7 @@ export const scrapeMenuFromWebsite = async (
     
     toast({
       title: "Menu Import Complete",
-      description: `Successfully imported ${scrapedItems.length} menu items with detailed ingredient information.`,
+      description: `Successfully imported ${scrapedItems.length} menu items with comprehensive ingredient information.`,
       variant: "default"
     });
     
@@ -257,170 +257,170 @@ const generateDetailedMenuItems = (diningHallId: string, url: string): MenuItem[
   const foodDetails: Record<string, {ingredients: string, dietary?: string[]}> = {
     // Breakfast items
     "Pancakes": {
-      ingredients: "Flour, eggs, milk, butter, baking powder, sugar, vanilla extract"
+      ingredients: "Wheat flour (unbleached), whole milk, fresh eggs, unsalted butter, baking powder, cane sugar, pure vanilla extract, salt"
     },
     "Omelette Station": {
-      ingredients: "Eggs, cheese, bell peppers, onions, mushrooms, spinach, tomatoes, ham (optional)"
+      ingredients: "Fresh eggs, shredded cheddar cheese, diced bell peppers (red, green, yellow), diced yellow onions, sliced cremini mushrooms, fresh baby spinach, diced roma tomatoes, diced black forest ham (optional)"
     },
     "Breakfast Burrito": {
-      ingredients: "Flour tortilla, scrambled eggs, cheese, black beans, salsa, avocado"
+      ingredients: "Flour tortilla (wheat flour, vegetable oil, salt), scrambled eggs, monterey jack cheese, seasoned black beans (black beans, cumin, garlic powder, salt), house-made salsa (tomatoes, onions, jalapeños, cilantro, lime juice), fresh avocado"
     },
     "Oatmeal Bar": {
-      ingredients: "Steel-cut oats, water, milk, cinnamon, brown sugar, berries, nuts, honey"
+      ingredients: "Organic steel-cut oats, filtered water, whole milk (optional), ground cinnamon, brown sugar, fresh seasonal berries, toasted walnuts, clover honey"
     },
     "Fresh Fruit": {
-      ingredients: "Seasonal selection of fresh fruit including apples, oranges, bananas, berries"
+      ingredients: "Seasonal selection: sliced honeycrisp apples, navel oranges, ripe bananas, fresh blueberries, strawberries, red grapes"
     },
     "Breakfast Sandwich": {
-      ingredients: "English muffin, fried egg, bacon, cheese, tomato"
+      ingredients: "Toasted english muffin (wheat flour, yeast, salt), fried egg, applewood smoked bacon, american cheese, sliced tomato"
     },
     "Harvard Square Pancakes": {
-      ingredients: "Flour, eggs, milk, butter, maple syrup, blueberries, powdered sugar"
+      ingredients: "Unbleached wheat flour, cage-free eggs, whole milk, unsalted butter, pure Vermont maple syrup, fresh blueberries, confectioners' sugar"
     },
     "Cambridge Omelette": {
-      ingredients: "Free-range eggs, artisanal cheese, baby spinach, heirloom tomatoes, herbs"
+      ingredients: "Local free-range eggs, artisanal Vermont cheddar cheese, organic baby spinach, heirloom tomatoes, fresh herbs (chives, parsley, thyme)"
     },
     "Veritas Breakfast Bowl": {
-      ingredients: "Quinoa, poached egg, avocado, roasted sweet potato, kale, olive oil"
+      ingredients: "Organic tri-color quinoa, poached cage-free egg, ripe avocado, roasted garnet sweet potato, massaged kale, extra virgin olive oil, sea salt, cracked black pepper"
     },
     "Crimson Yogurt Parfait": {
-      ingredients: "Greek yogurt, house-made granola, local honey, fresh berries, mint"
+      ingredients: "Strained Greek yogurt, house-made granola (rolled oats, honey, almonds, cinnamon), local wildflower honey, seasonal fresh berries (strawberries, blueberries, blackberries), fresh mint"
     },
     "Cardinal Morning Bowl": {
-      ingredients: "Acai base, granola, banana, strawberry, blueberry, coconut, honey"
+      ingredients: "Organic acai berry puree, whole grain granola (rolled oats, honey, almonds), sliced ripe banana, fresh strawberries, fresh blueberries, toasted coconut flakes, clover honey"
     },
     "Palo Alto Pancakes": {
-      ingredients: "Buttermilk, eggs, vanilla, flour, maple syrup, butter, seasonal berries"
+      ingredients: "Organic buttermilk, cage-free eggs, pure vanilla extract, unbleached flour, Grade A maple syrup, grass-fed butter, seasonal organic berries"
     },
     "Silicon Valley Smoothies": {
-      ingredients: "Almond milk, banana, spinach, protein powder, chia seeds, almond butter"
+      ingredients: "Unsweetened almond milk, ripe banana, organic spinach, plant-based protein powder, chia seeds, stone-ground almond butter"
     },
     "Stanford Sunrise Wrap": {
-      ingredients: "Whole wheat tortilla, scrambled eggs, avocado, black beans, salsa fresca"
+      ingredients: "Whole wheat tortilla, scrambled cage-free eggs, fresh avocado, organic black beans, house-made salsa fresca (tomatoes, onions, cilantro, lime juice)"
     },
     "Golden Bear Granola": {
-      ingredients: "Rolled oats, honey, almonds, walnuts, pumpkin seeds, dried cranberries, cinnamon"
+      ingredients: "Organic rolled oats, raw California honey, toasted almonds, candied walnuts, roasted pumpkin seeds, dried cranberries, ground cinnamon"
     },
     "Berkeley Breakfast Bowl": {
-      ingredients: "Brown rice, poached eggs, avocado, roasted vegetables, tahini sauce"
+      ingredients: "Short-grain brown rice, poached farm eggs, sliced avocado, fire-roasted seasonal vegetables (sweet potato, bell peppers, onions), house-made tahini sauce (tahini, lemon juice, garlic)"
     },
     "Bay Area Avocado Toast": {
-      ingredients: "Sourdough bread, smashed avocado, micro greens, olive oil, sea salt, poached egg"
+      ingredients: "San Francisco sourdough bread, smashed California avocado, locally grown microgreens, extra virgin olive oil, Maldon sea salt, soft poached free-range egg"
     },
     "Cal Crêpes": {
-      ingredients: "Flour, eggs, milk, butter, fresh seasonal berries, whipped cream, maple syrup"
+      ingredients: "Unbleached wheat flour, free-range eggs, whole milk, European butter, fresh organic seasonal berries, house-made whipped cream, pure maple syrup"
     },
     
     // Lunch items
     "Pizza Station": {
-      ingredients: "House-made dough, tomato sauce, mozzarella cheese, various toppings"
+      ingredients: "House-made dough (unbleached flour, active yeast, olive oil, salt), San Marzano tomato sauce, fresh mozzarella cheese, various toppings (pepperoni, mushrooms, bell peppers, onions, olives)"
     },
     "Burger Bar": {
-      ingredients: "Beef patty, brioche bun, lettuce, tomato, onion, pickles, American cheese"
+      ingredients: "Grass-fed beef patty (100% Angus beef), brioche bun (wheat flour, eggs, butter, milk), green leaf lettuce, vine-ripened tomato, red onion, dill pickles, aged American cheese"
     },
     "Salad Bar": {
-      ingredients: "Mixed greens, cherry tomatoes, cucumber, carrots, bell peppers, various dressings"
+      ingredients: "Organic mixed greens (romaine, arugula, spinach), cherry tomatoes, sliced English cucumber, shredded carrots, diced bell peppers, assorted dressings (ranch, balsamic vinaigrette, blue cheese, Italian)"
     },
     "Sandwich Station": {
-      ingredients: "Artisan bread, deli meats, cheeses, lettuce, tomato, condiments"
+      ingredients: "Artisan bread selection (whole grain, sourdough, rye), freshly sliced deli meats (turkey, ham, roast beef), assorted cheeses (cheddar, Swiss, provolone), crisp lettuce, sliced tomato, Dijon mustard, mayonnaise"
     },
     "Soup of the Day": {
-      ingredients: "Varies daily - check with server for ingredients and allergens"
+      ingredients: "Varies daily - inquire with server for complete ingredients list and potential allergens"
     },
     "Pasta Bar": {
-      ingredients: "Assorted pastas, marinara sauce, alfredo sauce, garlic, herbs, parmesan cheese"
+      ingredients: "Assorted pastas (penne, fettuccine, rigatoni), house-made marinara sauce (tomatoes, garlic, basil), alfredo sauce (heavy cream, butter, Parmesan cheese), roasted garlic, fresh herbs, grated Parmigiano-Reggiano cheese"
     },
     "Harvard Club Sandwich": {
-      ingredients: "Multi-grain bread, smoked turkey, avocado, bacon, lettuce, tomato, aioli"
+      ingredients: "Organic multi-grain bread, smoked turkey breast, ripe avocado, applewood smoked bacon, hydroponic lettuce, heirloom tomato, house-made garlic aioli (egg yolks, olive oil, garlic, lemon juice)"
     },
     "Quincy House Salad": {
-      ingredients: "Mixed greens, grilled chicken, goat cheese, dried cranberries, candied walnuts, balsamic vinaigrette"
+      ingredients: "Mixed field greens, grilled free-range chicken breast, Vermont goat cheese, organic dried cranberries, candied walnuts, house-made balsamic vinaigrette (balsamic vinegar, extra virgin olive oil, Dijon mustard, honey)"
     },
     "Academic Bowl Soup": {
-      ingredients: "Vegetable broth, seasonal vegetables, barley, herbs, olive oil"
+      ingredients: "Fresh vegetable broth, seasonal organic vegetables (carrots, celery, onions, leeks), pearl barley, fresh herbs (thyme, bay leaf, parsley), cold-pressed olive oil"
     },
     "John Harvard Burger": {
-      ingredients: "Grass-fed beef, brioche bun, aged cheddar, caramelized onions, special sauce"
+      ingredients: "New England grass-fed beef (8oz patty), artisanal brioche bun, Vermont aged white cheddar, caramelized sweet onions, special sauce (mayonnaise, ketchup, relish, garlic powder, paprika)"
     },
     "Tree House Salad": {
-      ingredients: "Spring mix, grilled tofu, edamame, shredded carrots, avocado, sesame ginger dressing"
+      ingredients: "Locally grown spring mix, organic grilled tofu, steamed edamame, rainbow shredded carrots, California avocado, house-made sesame ginger dressing (rice vinegar, sesame oil, fresh ginger, soy sauce, honey)"
     },
     "Memorial Court Sandwich": {
-      ingredients: "Focaccia bread, roasted turkey, brie cheese, green apple, honey mustard"
+      ingredients: "Artisanal focaccia bread (wheat flour, olive oil, rosemary), roasted heritage turkey breast, French brie cheese, sliced Granny Smith apple, honey mustard (Dijon mustard, clover honey)"
     },
     "Stanford GSB Burger": {
-      ingredients: "Grass-fed beef, artisanal roll, arugula, tomato jam, aged white cheddar"
+      ingredients: "California grass-fed beef (6oz patty), artisanal ciabatta roll, fresh arugula, house-made tomato jam (heirloom tomatoes, brown sugar, balsamic vinegar), aged white cheddar cheese"
     },
     "Computer Science Curry": {
-      ingredients: "Basmati rice, chickpeas, spinach, tomato, onion, garlic, ginger, curry spices, coconut milk"
+      ingredients: "Organic basmati rice, chickpeas, fresh spinach, diced tomatoes, yellow onion, minced garlic, grated ginger, curry spice blend (turmeric, cumin, coriander, cardamom), coconut milk"
     },
     "Telegraph Ave Tacos": {
-      ingredients: "Corn tortillas, seasoned black beans, avocado, salsa verde, cilantro, lime"
+      ingredients: "Stone-ground corn tortillas, seasoned black beans (black beans, cumin, chili powder, oregano), fresh avocado, house-made salsa verde (tomatillos, jalapeños, cilantro, lime), chopped cilantro, lime wedges"
     },
     "Sproul Plaza Salad": {
-      ingredients: "Local greens, quinoa, roasted seasonal vegetables, goat cheese, balsamic vinaigrette"
+      ingredients: "Local organic mixed greens, tri-color quinoa, roasted seasonal vegetables (zucchini, bell peppers, red onion, butternut squash), Laura Chenel goat cheese, balsamic vinaigrette (aged balsamic vinegar, extra virgin olive oil, Dijon mustard)"
     },
     "Berkeley Bowl": {
-      ingredients: "Brown rice, roasted sweet potatoes, kale, avocado, tempeh, tahini dressing"
+      ingredients: "Short-grain brown rice, maple-roasted garnet sweet potatoes, massaged dinosaur kale, California avocado, seasoned organic tempeh, house-made tahini dressing (tahini, lemon juice, garlic, olive oil)"
     },
     "Campanile Club Sandwich": {
-      ingredients: "Sourdough bread, roasted turkey, bacon, avocado, greens, tomato, garlic aioli"
+      ingredients: "San Francisco sourdough bread, oven-roasted turkey breast, applewood smoked bacon, California avocado, organic baby greens, heirloom tomato, garlic aioli (egg yolks, olive oil, garlic, lemon juice)"
     },
     
     // Dinner items
     "Carved Turkey": {
-      ingredients: "Roasted turkey breast, herb gravy, cranberry sauce"
+      ingredients: "Slow-roasted turkey breast, house-made herb gravy (turkey drippings, flour, herbs, stock), cranberry orange sauce (fresh cranberries, orange zest, cane sugar)"
     },
     "Vegetable Stir Fry": {
-      ingredients: "Assorted vegetables, tofu, soy sauce, ginger, garlic, sesame oil"
+      ingredients: "Seasonal assorted vegetables (broccoli, bell peppers, snap peas, carrots, mushrooms), organic extra-firm tofu, tamari soy sauce, fresh ginger, minced garlic, toasted sesame oil"
     },
     "Pasta Alfredo": {
-      ingredients: "Fettuccine pasta, heavy cream, butter, parmesan cheese, garlic, parsley"
+      ingredients: "Fresh fettuccine pasta (semolina flour, eggs), heavy cream, European butter, imported Parmigiano-Reggiano cheese, fresh garlic, Italian flat-leaf parsley, freshly ground black pepper"
     },
     "Roasted Vegetables": {
-      ingredients: "Seasonal vegetables, olive oil, garlic, herbs, salt, pepper"
+      ingredients: "Seasonal organic vegetables (Brussels sprouts, carrots, red onions, bell peppers), extra virgin olive oil, fresh garlic, dried herbs (thyme, rosemary), sea salt, cracked black pepper"
     },
     "Grilled Salmon": {
-      ingredients: "Atlantic salmon fillet, lemon, dill, butter, salt, pepper"
+      ingredients: "Wild-caught Atlantic salmon fillet, fresh lemon, dill sprigs, unsalted butter, sea salt, freshly ground black pepper"
     },
     "Taco Bar": {
-      ingredients: "Corn and flour tortillas, seasoned beef, lettuce, tomatoes, cheese, sour cream, salsa"
+      ingredients: "Fresh corn and flour tortillas, seasoned grass-fed ground beef (beef, onions, chili powder, cumin, oregano), shredded romaine lettuce, diced roma tomatoes, shredded Mexican blend cheese, sour cream, house-made salsa (tomatoes, onions, cilantro, jalapeños)"
     },
     "New England Clam Chowder": {
-      ingredients: "Clams, potatoes, onions, celery, bacon, heavy cream, herbs"
+      ingredients: "Fresh-shucked clams, Yukon gold potatoes, yellow onions, celery, applewood smoked bacon, heavy cream, fresh thyme, bay leaves"
     },
     "Charles River Salmon": {
-      ingredients: "Wild-caught salmon, lemon herb butter, roasted asparagus, fingerling potatoes"
+      ingredients: "Wild-caught Alaskan salmon, house-made lemon herb butter (unsalted butter, lemon zest, fresh herbs), roasted asparagus, fingerling potatoes, extra virgin olive oil"
     },
     "Massachusetts Steak": {
-      ingredients: "Grass-fed ribeye, herb butter, roasted garlic mashed potatoes, seasonal vegetables"
+      ingredients: "Locally sourced grass-fed ribeye steak, compound herb butter (butter, garlic, rosemary, thyme), roasted garlic mashed potatoes (Yukon gold potatoes, butter, cream, roasted garlic), seasonal farm vegetables"
     },
     "Widener Library Pasta": {
-      ingredients: "House-made pasta, heirloom tomato sauce, basil, parmesan, olive oil"
+      ingredients: "House-made fresh pasta (semolina flour, eggs), heirloom tomato sauce (San Marzano tomatoes, garlic, basil, olive oil), fresh basil, aged Parmigiano-Reggiano, cold-pressed extra virgin olive oil"
     },
     "California Veggie Plate": {
-      ingredients: "Seasonal farm-to-table vegetables, quinoa, herb oil, lemon zest"
+      ingredients: "Seasonal farm-to-table vegetables (rainbow carrots, golden beets, heirloom tomatoes, zucchini), organic red quinoa, herb-infused olive oil, fresh lemon zest, sea salt"
     },
     "Cardinal Chicken": {
-      ingredients: "Free-range chicken breast, white wine sauce, herb roasted potatoes, broccolini"
+      ingredients: "Free-range chicken breast, white wine reduction sauce (Chardonnay, shallots, butter, herbs), herb roasted fingerling potatoes (rosemary, thyme, olive oil), organic broccolini"
     },
     "Stanford Steak": {
-      ingredients: "Grass-fed New York strip, chimichurri, roasted fingerling potatoes, grilled asparagus"
+      ingredients: "Grass-fed New York strip steak, house-made chimichurri (parsley, cilantro, garlic, olive oil, red wine vinegar), roasted fingerling potatoes, grilled asparagus, olive oil"
     },
     "Farm to Table Specials": {
-      ingredients: "Rotating selection of dishes featuring locally sourced seasonal ingredients"
+      ingredients: "Rotating selection of dishes featuring locally sourced seasonal ingredients from sustainable Northern California farms"
     },
     "California Cuisine Plate": {
-      ingredients: "Locally sourced vegetables, ancient grains, avocado, sprouts, citrus vinaigrette"
+      ingredients: "Locally sourced organic seasonal vegetables, ancient grain medley (farro, quinoa, wild rice), California avocado, crispy microgreens, house-made citrus vinaigrette (orange juice, lemon juice, olive oil, shallots)"
     },
     "Chez Panisse Inspired Entrée": {
-      ingredients: "Seasonal organic vegetables, heirloom beans, herbs, olive oil, lemon"
+      ingredients: "Seasonal organic vegetables (whatever is best at the farmers' market today), heirloom beans (Rancho Gordo), fresh culinary herbs (parsley, thyme, oregano, chives), California extra virgin olive oil, Meyer lemon"
     },
     "Bears Den Burger": {
-      ingredients: "Grass-fed beef, brioche bun, caramelized onions, blue cheese, arugula, special sauce"
+      ingredients: "Half-pound grass-fed beef patty, artisanal brioche bun, caramelized Vidalia onions, Point Reyes blue cheese, wild arugula, house special sauce (mayonnaise, relish, smoked paprika, garlic)"
     },
     "Bay View Pasta": {
-      ingredients: "Fresh pasta, seasonal vegetables, white wine sauce, parmesan, herbs"
+      ingredients: "Fresh handmade pasta (Semolina flour, eggs), seasonal organic vegetables (asparagus, cherry tomatoes, baby spinach), white wine sauce (Chardonnay, shallots, butter), shaved Parmesan cheese, fresh herbs (basil, parsley)"
     }
   };
 
@@ -486,7 +486,7 @@ const generateDetailedMenuItems = (diningHallId: string, url: string): MenuItem[
     items.forEach((itemName, index) => {
       // Use stored food details or generate default ones
       const details = foodDetails[itemName] || {
-        ingredients: `Various fresh ingredients for ${itemName.toLowerCase()}.`
+        ingredients: `Detailed ingredients unavailable for ${itemName.toLowerCase()}.`
       };
       
       // Analyze ingredients to determine dietary restrictions
