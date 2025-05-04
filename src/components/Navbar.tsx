@@ -12,6 +12,7 @@ const Navbar = () => {
             <nav className="hidden md:flex space-x-4">
               <Link to="/" className="hover:text-campus-accent transition-colors">Home</Link>
               <Link to="/universities" className="hover:text-campus-accent transition-colors">Universities</Link>
+              <Link to="/reviews" className="hover:text-campus-accent transition-colors">Reviews</Link>
               <Link to="/about" className="hover:text-campus-accent transition-colors">About</Link>
             </nav>
           </div>

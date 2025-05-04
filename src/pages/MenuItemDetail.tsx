@@ -2,14 +2,14 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { menuItems, getHistoricalRatings, diningHalls } from '../services/mockDataService';
-import { MenuItem, HistoricalRating } from '../types';
+import { MenuItem, HistoricalRating, Rating } from '../types';
 import Navbar from '../components/Navbar';
 import StarRating from '../components/StarRating';
 import HistoricalRatingChart from '../components/HistoricalRatingChart';
 import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
-import { getAverageRating, getDailyRating } from '../services/ratingsService';
+import { getAverageRating, getDailyRating, getRatingsByMenuItem } from '../services/ratingsService';
 
 const MenuItemDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -22,6 +22,7 @@ const MenuItemDetail: React.FC = () => {
   const [overallCount, setOverallCount] = useState(0);
   const [todayRating, setTodayRating] = useState(0);
   const [todayCount, setTodayCount] = useState(0);
+  const [recentRatings, setRecentRatings] = useState<Rating[]>([]);
 
   // Handle invalid IDs
   useEffect(() => {
@@ -40,6 +41,14 @@ const MenuItemDetail: React.FC = () => {
       setOverallCount(menuItem.ratingsCount);
       setTodayRating(dailyRating);
       setTodayCount(dailyCount);
+      
+      // Get recent ratings with comments
+      const allRatings = getRatingsByMenuItem(menuItem.id);
+      const sortedRatings = allRatings
+        .filter(r => r.comment && r.comment.trim() !== '')
+        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+        .slice(0, 5); // Show only 5 most recent comments
+      setRecentRatings(sortedRatings);
     }
   }, [menuItem, navigate, id]);
   
@@ -53,6 +62,14 @@ const MenuItemDetail: React.FC = () => {
     setOverallRating(avgRating);
     setTodayRating(dailyRating);
     setTodayCount(dailyCount);
+    
+    // Refresh recent ratings
+    const allRatings = getRatingsByMenuItem(menuItem.id);
+    const sortedRatings = allRatings
+      .filter(r => r.comment && r.comment.trim() !== '')
+      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+      .slice(0, 5);
+    setRecentRatings(sortedRatings);
   };
 
   if (!menuItem) {
@@ -60,6 +77,17 @@ const MenuItemDetail: React.FC = () => {
   }
 
   const diningHall = diningHalls.find((hall) => hall.id === menuItem.diningHallId);
+  
+  const formatDate = (dateString: string): string => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric', 
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-campus-background">
@@ -72,6 +100,13 @@ const MenuItemDetail: React.FC = () => {
               onClick={() => navigate(`/dining-hall/${menuItem.diningHallId}`)}
             >
               Back to Menu
+            </Button>
+            
+            <Button 
+              variant="outline" 
+              onClick={() => navigate('/reviews')}
+            >
+              View All Reviews
             </Button>
           </div>
 
@@ -110,54 +145,79 @@ const MenuItemDetail: React.FC = () => {
                 ))}
               </div>
 
-              <div className="grid md:grid-cols-2 gap-6 mb-6">
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h2 className="text-xl font-semibold mb-2">Overall Rating</h2>
-                  <div className="flex items-center">
-                    <div className="mr-4">
-                      <p className="text-3xl font-bold text-campus-primary">{overallRating.toFixed(1)}</p>
-                      <p className="text-sm text-gray-500">{overallCount} ratings</p>
-                    </div>
+              <div className="grid md:grid-cols-2 gap-6 mb-8">
+                <div className="bg-gradient-to-r from-blue-50 to-campus-background p-6 rounded-lg shadow-sm border border-blue-100">
+                  <h2 className="text-xl font-semibold mb-4 text-center">Overall Rating</h2>
+                  <div className="flex flex-col items-center">
+                    <p className="text-5xl font-bold text-campus-primary mb-2">{overallRating.toFixed(1)}</p>
+                    <p className="text-sm text-gray-500 mb-4">{overallCount} ratings</p>
                     <StarRating
                       menuItemId={menuItem.id}
                       initialRating={overallRating}
                       size="lg"
                       readOnly
+                      prominentDisplay={true}
                     />
                   </div>
                 </div>
                 
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h2 className="text-xl font-semibold mb-2">Today's Rating</h2>
-                  <div className="flex items-center">
-                    <div className="mr-4">
-                      <p className="text-3xl font-bold text-campus-primary">
-                        {todayRating > 0 ? todayRating.toFixed(1) : 'N/A'}
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        {todayCount > 0 ? `${todayCount} ratings today` : 'No ratings today'}
-                      </p>
-                    </div>
+                <div className="bg-gray-50 p-6 rounded-lg">
+                  <h2 className="text-xl font-semibold mb-4 text-center">Today's Rating</h2>
+                  <div className="flex flex-col items-center">
+                    <p className="text-5xl font-bold text-campus-primary mb-2">
+                      {todayRating > 0 ? todayRating.toFixed(1) : 'N/A'}
+                    </p>
+                    <p className="text-sm text-gray-500 mb-4">
+                      {todayCount > 0 ? `${todayCount} ratings today` : 'No ratings today'}
+                    </p>
                     {todayRating > 0 && (
                       <StarRating
                         menuItemId={menuItem.id}
                         initialRating={todayRating}
                         size="lg"
                         readOnly
+                        prominentDisplay={true}
                       />
                     )}
                   </div>
                 </div>
               </div>
 
-              <div className="mb-6">
-                <h2 className="text-xl font-semibold mb-2">Rate This Item</h2>
-                <StarRating 
-                  menuItemId={menuItem.id} 
-                  size="lg" 
-                  onRatingChange={handleRatingChange}
-                />
+              <div className="bg-campus-accent/10 p-6 rounded-lg mb-8 shadow-sm border border-campus-accent/20">
+                <h2 className="text-2xl font-bold mb-6 text-center text-campus-primary">Rate This Item</h2>
+                <div className="flex justify-center">
+                  <div className="w-full max-w-md">
+                    <StarRating 
+                      menuItemId={menuItem.id} 
+                      size="lg" 
+                      onRatingChange={handleRatingChange}
+                      prominentDisplay={true}
+                    />
+                  </div>
+                </div>
               </div>
+
+              {recentRatings.length > 0 && (
+                <div className="mb-8">
+                  <h2 className="text-xl font-semibold mb-4">Recent Reviews</h2>
+                  <div className="space-y-4">
+                    {recentRatings.map((rating) => (
+                      <div key={rating.id} className="bg-gray-50 p-4 rounded-lg">
+                        <div className="flex justify-between mb-2">
+                          <StarRating 
+                            menuItemId={menuItem.id}
+                            initialRating={rating.value}
+                            size="sm"
+                            readOnly
+                          />
+                          <span className="text-sm text-gray-500">{formatDate(rating.timestamp)}</span>
+                        </div>
+                        <p className="text-gray-700">{rating.comment}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {historicalRatings.length > 0 && (
                 <HistoricalRatingChart historicalRatings={historicalRatings} />

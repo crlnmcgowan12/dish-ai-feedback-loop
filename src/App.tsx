@@ -10,6 +10,7 @@ import DiningHallPage from "./pages/DiningHallPage";
 import MenuItemDetail from "./pages/MenuItemDetail";
 import AboutPage from "./pages/AboutPage";
 import NotFound from "./pages/NotFound";
+import ReviewsPage from "./pages/ReviewsPage";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +26,7 @@ const App = () => (
           <Route path="/dining-hall/:id" element={<DiningHallPage />} />
           <Route path="/menu-item/:id" element={<MenuItemDetail />} />
           <Route path="/about" element={<AboutPage />} />
+          <Route path="/reviews" element={<ReviewsPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

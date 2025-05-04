@@ -4,6 +4,7 @@ import { Star } from 'lucide-react';
 import { saveRating, getUserRatingForMenuItem } from '../services/ratingsService';
 import { isLoggedIn } from '../services/authService';
 import { Button } from './ui/button';
+import { Textarea } from './ui/textarea';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 import AuthModal from './AuthModal';
 
@@ -13,6 +14,7 @@ interface StarRatingProps {
   size: 'sm' | 'md' | 'lg';
   readOnly?: boolean;
   onRatingChange?: () => void;
+  prominentDisplay?: boolean;
 }
 
 const StarRating = ({
@@ -20,12 +22,15 @@ const StarRating = ({
   initialRating = 0,
   size = 'md',
   readOnly = false,
-  onRatingChange
+  onRatingChange,
+  prominentDisplay = false
 }: StarRatingProps) => {
   const [rating, setRating] = useState<number>(0);
   const [hover, setHover] = useState<number | null>(null);
   const [userRating, setUserRating] = useState<number>(0);
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [comment, setComment] = useState<string>('');
+  const [showCommentInput, setShowCommentInput] = useState(false);
 
   useEffect(() => {
     // If readOnly, use the provided initialRating
@@ -40,6 +45,9 @@ const StarRating = ({
       if (userRatingObj) {
         setRating(userRatingObj.value);
         setUserRating(userRatingObj.value);
+        if (userRatingObj.comment) {
+          setComment(userRatingObj.comment);
+        }
       } else {
         setRating(0);
         setUserRating(0);
@@ -59,8 +67,8 @@ const StarRating = ({
       gap: 2
     },
     lg: {
-      starSize: 24,
-      gap: 3
+      starSize: prominentDisplay ? 30 : 24,
+      gap: prominentDisplay ? 4 : 3
     }
   };
 
@@ -73,13 +81,18 @@ const StarRating = ({
       return;
     }
     
-    // Save the rating
-    const result = saveRating(menuItemId, value);
+    setRating(value);
+    setUserRating(value);
+    setShowCommentInput(true);
+  };
+
+  const handleSubmitRating = () => {
+    // Save the rating with the comment
+    const result = saveRating(menuItemId, userRating, comment);
     
     // Update UI only if rating was successfully saved
     if (result) {
-      setRating(value);
-      setUserRating(value);
+      setShowCommentInput(false);
       
       if (onRatingChange) {
         onRatingChange();
@@ -93,21 +106,24 @@ const StarRating = ({
     if (userRatingObj) {
       setRating(userRatingObj.value);
       setUserRating(userRatingObj.value);
+      if (userRatingObj.comment) {
+        setComment(userRatingObj.comment);
+      }
     }
   };
 
   return (
     <>
-      <div className="flex items-center">
+      <div className={`flex ${prominentDisplay ? 'flex-col items-center' : 'items-center'}`}>
         <div
-          className="inline-flex"
+          className={`inline-flex ${prominentDisplay ? 'mb-3' : ''}`}
           style={{ gap: `${sizes[size].gap}px` }}
         >
           {[1, 2, 3, 4, 5].map((value) => (
             <Star
               key={value}
               size={sizes[size].starSize}
-              className={`cursor-${readOnly ? 'default' : 'pointer'}`}
+              className={`cursor-${readOnly ? 'default' : 'pointer'} ${prominentDisplay ? 'animate-pulse-slow' : ''}`}
               fill={(hover !== null ? hover >= value : rating >= value) ? 'gold' : 'transparent'}
               stroke={(hover !== null ? hover >= value : rating >= value) ? 'gold' : 'gray'}
               strokeWidth={1.5}
@@ -122,7 +138,7 @@ const StarRating = ({
         {!readOnly && !isLoggedIn() && (
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="sm" className="ml-2 p-1 h-auto" onClick={() => setAuthModalOpen(true)}>
+              <Button variant="ghost" size="sm" className={`${prominentDisplay ? 'mt-2' : 'ml-2'} p-1 h-auto`} onClick={() => setAuthModalOpen(true)}>
                 <span className="text-xs text-blue-600 hover:underline">Login to rate</span>
               </Button>
             </TooltipTrigger>
@@ -132,6 +148,22 @@ const StarRating = ({
           </Tooltip>
         )}
       </div>
+      
+      {showCommentInput && !readOnly && isLoggedIn() && (
+        <div className="mt-3 space-y-2">
+          <Textarea 
+            placeholder="Add a comment about your experience (optional)" 
+            value={comment} 
+            onChange={(e) => setComment(e.target.value)}
+            maxLength={200}
+            className="resize-none"
+          />
+          <div className="flex justify-between items-center">
+            <span className="text-xs text-gray-500">{comment.length}/200</span>
+            <Button onClick={handleSubmitRating} size="sm">Submit Review</Button>
+          </div>
+        </div>
+      )}
       
       <AuthModal 
         open={authModalOpen} 

@@ -35,9 +35,12 @@ export interface Rating {
   id: string;
   menuItemId: string;
   value: number; // 1-5
+  comment?: string; // Added comment field
   deviceId: string; // For anonymous ratings
   userId?: string; // For authenticated users
   timestamp: string; // ISO format
+  menuItemName?: string; // Added for easier display on Reviews page
+  diningHallId?: string; // Added for easier filtering on Reviews page
 }
 
 export interface HistoricalRating {
@@ -58,3 +61,6 @@ export interface University {
 
 // Enums
 export type MealPeriod = 'Breakfast' | 'Lunch' | 'Dinner';
+
+// Sorting options for reviews
+export type ReviewSortOption = 'highest' | 'lowest' | 'newest' | 'oldest';

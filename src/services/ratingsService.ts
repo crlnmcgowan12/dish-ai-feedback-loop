@@ -1,6 +1,9 @@
+
 import { Rating } from '../types';
 import { getCurrentUser, isLoggedIn } from './authService';
 import { toast } from '../hooks/use-toast';
+import { containsOffensiveLanguage, filterOffensiveLanguage } from './moderationService';
+import { menuItems, diningHalls } from './mockDataService';
 
 // Store ratings in localStorage
 const RATINGS_STORAGE_KEY = 'campusDish_ratings';
@@ -16,7 +19,7 @@ const getDeviceId = (): string => {
 };
 
 // Save a rating for a menu item
-export const saveRating = (menuItemId: string, value: number): Rating | null => {
+export const saveRating = (menuItemId: string, value: number, comment?: string): Rating | null => {
   const isUserLoggedIn = isLoggedIn();
   const currentUser = getCurrentUser();
   
@@ -24,14 +27,33 @@ export const saveRating = (menuItemId: string, value: number): Rating | null => 
   const userId = currentUser?.id;
   const deviceId = getDeviceId();
   
+  // Check comment for offensive language
+  let processedComment = comment;
+  if (comment && comment.trim() !== '') {
+    if (containsOffensiveLanguage(comment)) {
+      toast({
+        title: "Comment moderated",
+        description: "Your comment contains inappropriate language and has been filtered.",
+        variant: "warning",
+      });
+      processedComment = filterOffensiveLanguage(comment);
+    }
+  }
+
+  // Get the menu item details for storing with the rating
+  const menuItem = menuItems.find(item => item.id === menuItemId);
+  
   // Create the new rating object
   const newRating: Rating = {
     id: `rating_${Math.random().toString(36).substring(2, 15)}`,
     menuItemId,
     value,
+    comment: processedComment,
     deviceId,
     userId: userId || undefined,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    menuItemName: menuItem?.name,
+    diningHallId: menuItem?.diningHallId
   };
 
   // Get existing ratings from localStorage
@@ -136,4 +158,52 @@ export const getRatings = (): Rating[] => {
   const ratingsJson = localStorage.getItem(RATINGS_STORAGE_KEY);
   if (!ratingsJson) return [];
   return JSON.parse(ratingsJson);
+};
+
+// Get all ratings sorted by the specified option
+export const getSortedRatings = (sortBy: 'highest' | 'lowest' | 'newest' | 'oldest'): Rating[] => {
+  const ratings = getRatings();
+  
+  // Enrich ratings with menu item and dining hall info if not already present
+  const enrichedRatings = ratings.map(rating => {
+    if (!rating.menuItemName || !rating.diningHallId) {
+      const menuItem = menuItems.find(item => item.id === rating.menuItemId);
+      if (menuItem) {
+        return {
+          ...rating,
+          menuItemName: menuItem.name,
+          diningHallId: menuItem.diningHallId
+        };
+      }
+    }
+    return rating;
+  });
+  
+  // Sort based on the provided option
+  switch (sortBy) {
+    case 'highest':
+      return enrichedRatings.sort((a, b) => b.value - a.value);
+    case 'lowest':
+      return enrichedRatings.sort((a, b) => a.value - b.value);
+    case 'newest':
+      return enrichedRatings.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+    case 'oldest':
+      return enrichedRatings.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+    default:
+      return enrichedRatings;
+  }
+};
+
+// Get a rating by ID
+export const getRatingById = (id: string): Rating | null => {
+  const ratings = getRatings();
+  const rating = ratings.find(r => r.id === id);
+  return rating || null;
+};
+
+// Get dining hall name for a rating
+export const getDiningHallForRating = (rating: Rating): string => {
+  if (!rating.diningHallId) return 'Unknown Dining Hall';
+  const diningHall = diningHalls.find(hall => hall.id === rating.diningHallId);
+  return diningHall ? diningHall.name : 'Unknown Dining Hall';
 };

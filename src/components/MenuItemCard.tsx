@@ -88,12 +88,13 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({ menuItem, onRatingChange })
             </Badge>
           ))}
         </div>
-        <div className="flex flex-col gap-1 mt-2">
+        
+        <div className="bg-blue-50 p-2 rounded-md border border-blue-100 mt-3">
           <div className="flex justify-between items-center">
-            <span className="text-sm font-medium">Overall Rating:</span>
+            <span className="text-sm font-medium text-campus-primary">Rating:</span>
             <div className="flex items-center">
-              <span className="text-sm mr-2">
-                {currentRating.toFixed(1)} ({ratingsCount})
+              <span className="font-bold text-lg mr-2 text-campus-primary">
+                {currentRating.toFixed(1)}
               </span>
               <StarRating
                 menuItemId={menuItem.id}
@@ -103,28 +104,21 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({ menuItem, onRatingChange })
               />
             </div>
           </div>
-          <div className="flex justify-between items-center">
-            <span className="text-sm font-medium">Today's Rating:</span>
-            <div className="flex items-center">
-              <span className="text-sm mr-2">
-                {dailyRating > 0 ? dailyRating.toFixed(1) : 'N/A'} 
-                {dailyCount > 0 ? ` (${dailyCount})` : ''}
-              </span>
-              {dailyRating > 0 && (
-                <StarRating
-                  menuItemId={menuItem.id}
-                  initialRating={dailyRating}
-                  size="sm"
-                  readOnly
-                />
-              )}
-            </div>
+          <div className="text-xs text-gray-500 text-right mt-1">
+            {ratingsCount} {ratingsCount === 1 ? 'rating' : 'ratings'} total
           </div>
         </div>
+        
+        {dailyRating > 0 && (
+          <div className="mt-2 text-sm">
+            <span className="font-medium">Today:</span> {dailyRating.toFixed(1)} 
+            <span className="text-xs text-gray-500"> ({dailyCount} {dailyCount === 1 ? 'rating' : 'ratings'})</span>
+          </div>
+        )}
       </CardContent>
       <CardFooter className="pt-0">
         <div className="w-full">
-          <p className="text-sm mb-2">Rate this item:</p>
+          <p className="text-sm font-medium mb-1 text-center">Rate this item:</p>
           <StarRating
             menuItemId={menuItem.id}
             size="md"
