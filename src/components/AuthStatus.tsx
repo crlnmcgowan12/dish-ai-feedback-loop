@@ -62,13 +62,13 @@ const AuthStatus = () => {
         </div>
       ) : (
         <Button 
-          variant="outline" 
+          variant="default" 
           size="sm"
           onClick={() => setAuthModalOpen(true)}
-          className="flex items-center gap-1"
+          className="flex items-center gap-1 bg-campus-primary hover:bg-campus-secondary text-white shadow-md"
         >
           <LogIn className="h-4 w-4" />
-          <span className="hidden sm:inline">Login</span>
+          <span className="sm:inline">Login</span>
         </Button>
       )}
       
