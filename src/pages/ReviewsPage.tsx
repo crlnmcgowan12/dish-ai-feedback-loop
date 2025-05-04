@@ -3,33 +3,49 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import StarRating from '../components/StarRating';
-import { getSortedRatings, getDiningHallForRating, clearAllRatings } from '../services/ratingsService';
+import { getSortedRatings, getDiningHallForRating } from '../services/ratingsService';
 import { Rating, ReviewSortOption } from '../types';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '../components/ui/pagination';
-import { ArrowUp, ArrowDown, MessageSquare, Star, Trash2 } from 'lucide-react';
+import { ArrowUp, ArrowDown, MessageSquare, Star, User } from 'lucide-react';
+import { Switch } from '../components/ui/switch';
+import { getCurrentUser } from '../services/authService';
 
 const ReviewsPage: React.FC = () => {
   const [ratings, setRatings] = useState<Rating[]>([]);
+  const [filteredRatings, setFilteredRatings] = useState<Rating[]>([]);
   const [sortBy, setSortBy] = useState<ReviewSortOption>('newest');
   const [currentPage, setCurrentPage] = useState(1);
+  const [showPersonalOnly, setShowPersonalOnly] = useState(false);
   const itemsPerPage = 10;
+  const currentUser = getCurrentUser();
 
   useEffect(() => {
     const sortedRatings = getSortedRatings(sortBy);
     setRatings(sortedRatings);
+    filterRatings(sortedRatings, showPersonalOnly);
   }, [sortBy]);
+
+  const filterRatings = (ratingsList: Rating[], personalOnly: boolean) => {
+    if (personalOnly && currentUser) {
+      setFilteredRatings(ratingsList.filter(rating => rating.userId === currentUser.id));
+    } else {
+      setFilteredRatings(ratingsList);
+    }
+  };
 
   const handleSortChange = (option: ReviewSortOption) => {
     setSortBy(option);
     setCurrentPage(1); // Reset to first page when sort changes
   };
 
-  const handleClearReviews = () => {
-    clearAllRatings();
-    setRatings([]); // Clear the ratings in the UI
+  const togglePersonalReviews = () => {
+    const newShowPersonalOnly = !showPersonalOnly;
+    setShowPersonalOnly(newShowPersonalOnly);
+    filterRatings(ratings, newShowPersonalOnly);
+    setCurrentPage(1); // Reset to first page when filter changes
   };
 
   // Format date for display
@@ -43,69 +59,75 @@ const ReviewsPage: React.FC = () => {
   };
 
   // Pagination calculations
-  const totalPages = Math.ceil(ratings.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredRatings.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedRatings = ratings.slice(startIndex, startIndex + itemsPerPage);
+  const paginatedRatings = filteredRatings.slice(startIndex, startIndex + itemsPerPage);
 
   return (
     <div className="min-h-screen flex flex-col bg-campus-background">
       <Navbar />
       <main className="container mx-auto px-4 py-8 flex-grow">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-campus-primary">All Reviews</h1>
-          <Button 
-            variant="destructive" 
-            size="sm" 
-            onClick={handleClearReviews}
-            className="flex items-center gap-1"
-          >
-            <Trash2 size={16} />
-            Clear All Reviews
-          </Button>
-        </div>
+        <h1 className="text-3xl font-bold text-campus-primary mb-6">All Reviews</h1>
         
         <Card className="mb-8">
           <CardHeader className="pb-3">
             <CardTitle className="text-xl">Filter & Sort</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-wrap gap-2">
-              <Button 
-                variant={sortBy === 'highest' ? 'default' : 'outline'} 
-                size="sm" 
-                onClick={() => handleSortChange('highest')}
-                className="flex items-center gap-1"
-              >
-                <Star size={16} />
-                Highest Rated
-              </Button>
-              <Button 
-                variant={sortBy === 'lowest' ? 'default' : 'outline'} 
-                size="sm" 
-                onClick={() => handleSortChange('lowest')}
-                className="flex items-center gap-1"
-              >
-                <Star size={16} className="opacity-50" />
-                Lowest Rated
-              </Button>
-              <Button 
-                variant={sortBy === 'newest' ? 'default' : 'outline'} 
-                size="sm" 
-                onClick={() => handleSortChange('newest')}
-                className="flex items-center gap-1"
-              >
-                <ArrowUp size={16} />
-                Newest First
-              </Button>
-              <Button 
-                variant={sortBy === 'oldest' ? 'default' : 'outline'} 
-                size="sm" 
-                onClick={() => handleSortChange('oldest')}
-                className="flex items-center gap-1"
-              >
-                <ArrowDown size={16} />
-                Oldest First
-              </Button>
+            <div className="flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between mb-4">
+              <div className="flex flex-wrap gap-2">
+                <Button 
+                  variant={sortBy === 'highest' ? 'default' : 'outline'} 
+                  size="sm" 
+                  onClick={() => handleSortChange('highest')}
+                  className="flex items-center gap-1"
+                >
+                  <Star size={16} />
+                  Highest Rated
+                </Button>
+                <Button 
+                  variant={sortBy === 'lowest' ? 'default' : 'outline'} 
+                  size="sm" 
+                  onClick={() => handleSortChange('lowest')}
+                  className="flex items-center gap-1"
+                >
+                  <Star size={16} className="opacity-50" />
+                  Lowest Rated
+                </Button>
+                <Button 
+                  variant={sortBy === 'newest' ? 'default' : 'outline'} 
+                  size="sm" 
+                  onClick={() => handleSortChange('newest')}
+                  className="flex items-center gap-1"
+                >
+                  <ArrowUp size={16} />
+                  Newest First
+                </Button>
+                <Button 
+                  variant={sortBy === 'oldest' ? 'default' : 'outline'} 
+                  size="sm" 
+                  onClick={() => handleSortChange('oldest')}
+                  className="flex items-center gap-1"
+                >
+                  <ArrowDown size={16} />
+                  Oldest First
+                </Button>
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <Switch 
+                  id="personal-reviews"
+                  checked={showPersonalOnly} 
+                  onCheckedChange={togglePersonalReviews}
+                />
+                <label 
+                  htmlFor="personal-reviews" 
+                  className="text-sm font-medium flex items-center gap-1 cursor-pointer"
+                >
+                  <User size={16} />
+                  My Reviews Only
+                </label>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -162,7 +184,7 @@ const ReviewsPage: React.FC = () => {
                 ) : (
                   <TableRow>
                     <TableCell colSpan={5} className="text-center py-8 text-gray-500">
-                      No ratings found. Start rating some menu items!
+                      {showPersonalOnly ? 'You haven\'t submitted any reviews yet.' : 'No ratings found. Start rating some menu items!'}
                     </TableCell>
                   </TableRow>
                 )}
