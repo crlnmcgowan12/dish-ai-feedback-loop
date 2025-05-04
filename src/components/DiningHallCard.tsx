@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { DiningHall } from '../types';
 import { Card, CardContent, CardFooter, CardHeader } from './ui/card';
 import { AspectRatio } from './ui/aspect-ratio';
+import { Clock } from 'lucide-react';
 
 interface DiningHallCardProps {
   diningHall: DiningHall;
@@ -15,7 +16,7 @@ const DiningHallCard: React.FC<DiningHallCardProps> = ({ diningHall }) => {
 
   return (
     <Link to={`/dining-hall/${diningHall.id}`} className="block">
-      <Card className="h-full overflow-hidden hover:shadow-lg transition-shadow duration-300">
+      <Card className="h-full overflow-hidden card-hover">
         <AspectRatio ratio={16 / 9} className="bg-muted">
           <img
             src={diningHall.image}
@@ -24,14 +25,18 @@ const DiningHallCard: React.FC<DiningHallCardProps> = ({ diningHall }) => {
           />
         </AspectRatio>
         <CardHeader className="pb-2">
-          <h3 className="text-xl font-semibold">{diningHall.name}</h3>
+          <h3 className="text-xl font-semibold text-campus-primary">{diningHall.name}</h3>
         </CardHeader>
         <CardContent className="pb-2 pt-0">
-          <p className="text-sm text-gray-600">{diningHall.location}</p>
+          <p className="text-sm text-gray-600 mb-2">{diningHall.location}</p>
+          <div className="h-px bg-gradient-to-r from-campus-primary/20 via-campus-secondary/30 to-campus-primary/20 my-2"></div>
         </CardContent>
         <CardFooter className="pt-0 text-sm text-gray-500 flex flex-col items-start">
-          <p className="font-medium text-xs text-gray-700">Today's Hours ({currentDay}):</p>
-          <p className="line-clamp-2">{diningHall.dailyHours[currentDay]}</p>
+          <div className="flex items-center gap-1 text-xs text-campus-secondary font-medium mb-1">
+            <Clock size={14} className="opacity-70" />
+            <span>Today's Hours ({currentDay})</span>
+          </div>
+          <p className="line-clamp-2 text-gray-600">{diningHall.dailyHours[currentDay]}</p>
         </CardFooter>
       </Card>
     </Link>

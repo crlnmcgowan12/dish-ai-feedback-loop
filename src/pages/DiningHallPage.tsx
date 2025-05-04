@@ -9,6 +9,7 @@ import { Button } from '../components/ui/button';
 import { AspectRatio } from '../components/ui/aspect-ratio';
 import { getScrapedMenuItemsByDiningHallAndMeal } from '../services/menuScraperService';
 import { toast } from '../hooks/use-toast';
+import { Clock, ArrowLeft, CalendarDays } from 'lucide-react';
 
 const DiningHallPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -98,38 +99,49 @@ const DiningHallPage: React.FC = () => {
     <div className="min-h-screen flex flex-col bg-campus-background">
       <Navbar />
       <main className="container mx-auto px-4 py-8 flex-grow">
-        <section className="mb-8">
-          <div className="flex flex-col md:flex-row md:items-start justify-between mb-4 gap-6">
+        <Button 
+          variant="ghost" 
+          onClick={() => navigate('/')}
+          className="mb-6 hover:bg-campus-accent/20 -ml-2"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back to Dining Halls
+        </Button>
+        
+        <section className="mb-12">
+          <div className="flex flex-col md:flex-row md:items-start justify-between gap-8">
             <div className="w-full md:w-2/3">
-              <AspectRatio ratio={16 / 9} className="mb-4 bg-muted overflow-hidden rounded-lg">
+              <AspectRatio ratio={16 / 9} className="mb-6 bg-muted overflow-hidden rounded-2xl shadow-card">
                 <img 
                   src={diningHall.image} 
                   alt={diningHall.name}
                   className="object-cover w-full h-full transition-transform duration-300 hover:scale-105"
                 />
               </AspectRatio>
+              <h1 className="text-3xl md:text-4xl font-bold text-campus-primary mb-3">{diningHall.name}</h1>
+              <p className="text-gray-600 mb-6 text-lg">{diningHall.location}</p>
             </div>
-            <div className="w-full md:w-1/3 bg-white p-4 rounded-lg shadow">
-              <h1 className="text-3xl font-bold text-campus-primary">{diningHall.name}</h1>
-              <p className="text-gray-600 mb-2">{diningHall.location}</p>
-              
-              {/* Hours of Operation Section */}
-              <div className="mt-4">
-                <h3 className="font-medium text-gray-800 mb-2">Hours of Operation</h3>
+            
+            <div className="w-full md:w-1/3">
+              <div className="bg-white rounded-2xl shadow-soft p-6 border border-gray-100">
+                <div className="flex items-center gap-2 mb-4">
+                  <CalendarDays className="h-5 w-5 text-campus-primary" />
+                  <h3 className="font-semibold text-lg text-campus-primary">Hours of Operation</h3>
+                </div>
                 
                 {/* Day selection tabs */}
-                <div className="flex flex-wrap gap-1 mb-3">
+                <div className="flex flex-wrap gap-1.5 mb-4">
                   {daysOfWeek.map((day) => (
                     <button
                       key={day}
                       onClick={() => handleDaySelection(day)}
-                      className={`text-xs px-2 py-1 rounded ${
+                      className={`text-xs px-3 py-1.5 rounded-full transition-colors ${
                         selectedDay === day 
-                          ? 'bg-campus-primary text-white' 
+                          ? 'bg-campus-primary text-white shadow-sm' 
                           : day === currentDay 
-                            ? 'bg-campus-secondary/20 text-campus-secondary' 
-                            : 'bg-gray-100 text-gray-700'
-                      } transition-colors`}
+                            ? 'bg-campus-accent text-campus-primary font-medium' 
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
                     >
                       {day.slice(0, 3)}
                     </button>
@@ -137,38 +149,33 @@ const DiningHallPage: React.FC = () => {
                 </div>
                 
                 {/* Selected day hours */}
-                <div className="p-3 border rounded bg-gray-50">
-                  <div className="flex justify-between items-center">
-                    <h4 className="font-medium">
-                      {selectedDay === currentDay ? `Today (${selectedDay})` : selectedDay}:
+                <div className="p-4 rounded-xl bg-gradient-to-r from-gray-50 to-campus-accent/10 border border-campus-accent/20">
+                  <div className="flex justify-between items-center mb-2">
+                    <h4 className="font-medium text-gray-800">
+                      {selectedDay === currentDay ? `Today (${selectedDay})` : selectedDay}
                     </h4>
                     {selectedDay === currentDay && (
-                      <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded">
+                      <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full font-medium">
                         Today
                       </span>
                     )}
                   </div>
-                  <p className="text-sm mt-1 whitespace-pre-line">
-                    {selectedDay ? diningHall.dailyHours[selectedDay] : 'Select a day'}
-                  </p>
+                  <div className="flex items-start gap-2">
+                    <Clock className="h-4 w-4 text-gray-500 mt-0.5" />
+                    <p className="text-sm text-gray-700 whitespace-pre-line">
+                      {selectedDay ? diningHall.dailyHours[selectedDay] : 'Select a day'}
+                    </p>
+                  </div>
                 </div>
               </div>
-              
-              <Button 
-                variant="outline" 
-                onClick={() => navigate('/')}
-                className="mt-4 w-full"
-              >
-                Back to Dining Halls
-              </Button>
             </div>
           </div>
 
-          <div className="mt-8">
+          <div className="mt-10">
             <MealTabs activeMeal={activeMeal} onMealChange={handleMealChange} />
 
             {menuItems.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-6">
                 {menuItems.map((item) => (
                   <MenuItemCard 
                     key={item.id} 
@@ -178,16 +185,24 @@ const DiningHallPage: React.FC = () => {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-12">
+              <div className="text-center py-16 bg-white rounded-2xl shadow-sm border border-gray-100">
                 <p className="text-gray-500">No menu items available for {activeMeal.toLowerCase()}.</p>
               </div>
             )}
           </div>
         </section>
       </main>
-      <footer className="bg-campus-primary text-white py-4">
-        <div className="container mx-auto px-4 text-center">
-          <p>&copy; 2025 CampusDish Insights. All rights reserved.</p>
+      <footer className="bg-campus-primary text-white py-8 mt-auto">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+              <h3 className="text-xl font-bold mb-2">CampusDish Insights</h3>
+              <p className="text-white/70">Making campus dining deliciously simple</p>
+            </div>
+            <div>
+              <p>&copy; 2025 CampusDish Insights. All rights reserved.</p>
+            </div>
+          </div>
         </div>
       </footer>
     </div>
