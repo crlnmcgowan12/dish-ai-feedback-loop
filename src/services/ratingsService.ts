@@ -1,4 +1,3 @@
-
 import { Rating } from '../types';
 import { getCurrentUser, isLoggedIn } from './authService';
 import { toast } from '../hooks/use-toast';
@@ -34,7 +33,7 @@ export const saveRating = (menuItemId: string, value: number, comment?: string):
       toast({
         title: "Comment moderated",
         description: "Your comment contains inappropriate language and has been filtered.",
-        variant: "warning",
+        variant: "default", // Changed from "warning" to "default" as warning is not a valid variant
       });
       processedComment = filterOffensiveLanguage(comment);
     }
