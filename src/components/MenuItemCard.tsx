@@ -8,7 +8,7 @@ import StarRating from './StarRating';
 import { getAverageRating, getDailyRating, getRatingsByMenuItem } from '../services/ratingsService';
 import { reportIncorrectLabel } from '../services/menuScraperService';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
-import { Flag, AlertCircle } from 'lucide-react';
+import { Flag, AlertCircle, Utensils } from 'lucide-react';
 import { toast } from '../hooks/use-toast';
 
 interface MenuItemCardProps {
@@ -22,6 +22,7 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({ menuItem, onRatingChange })
   const [dailyRating, setDailyRating] = useState(0);
   const [dailyCount, setDailyCount] = useState(0);
   const [reportSubmitted, setReportSubmitted] = useState(false);
+  const [showIngredients, setShowIngredients] = useState(false);
 
   // Update rating display whenever the component mounts or after a rating change
   useEffect(() => {
@@ -78,6 +79,11 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({ menuItem, onRatingChange })
       title: "Report Submitted",
       description: `Thank you for reporting that "${dietaryLabel}" label is missing from this item.`,
     });
+  };
+
+  // Toggle ingredients visibility
+  const toggleIngredients = () => {
+    setShowIngredients(!showIngredients);
   };
 
   return (
@@ -168,13 +174,6 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({ menuItem, onRatingChange })
       <CardContent className="pb-2">
         <p className="text-sm text-gray-600 mb-2">{menuItem.description}</p>
         
-        {menuItem.ingredients && (
-          <div className="mb-3 bg-amber-50 p-2 rounded-md border border-amber-100">
-            <p className="text-xs font-medium text-amber-800">Ingredients:</p>
-            <p className="text-xs text-amber-700">{menuItem.ingredients}</p>
-          </div>
-        )}
-        
         {menuItem.dietaryInfo && menuItem.dietaryInfo.length > 0 && (
           <div className="flex flex-wrap gap-1 mb-3">
             {menuItem.dietaryInfo.map((info) => (
@@ -182,6 +181,23 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({ menuItem, onRatingChange })
                 {info}
               </Badge>
             ))}
+          </div>
+        )}
+
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="w-full text-sm flex items-center justify-center gap-1 mb-2"
+          onClick={toggleIngredients}
+        >
+          <Utensils className="h-3.5 w-3.5" />
+          {showIngredients ? 'Hide Ingredients' : 'Show Ingredients'} 
+        </Button>
+        
+        {showIngredients && menuItem.ingredients && (
+          <div className="mb-3 bg-amber-50 p-2 rounded-md border border-amber-100">
+            <p className="text-xs font-medium text-amber-800">Ingredients:</p>
+            <p className="text-xs text-amber-700">{menuItem.ingredients}</p>
           </div>
         )}
         

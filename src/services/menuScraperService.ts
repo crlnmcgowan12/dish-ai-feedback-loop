@@ -1,3 +1,4 @@
+
 import { MenuItem, MealPeriod } from '../types';
 import { toast } from '../hooks/use-toast';
 
@@ -182,21 +183,26 @@ export const getReportedLabels = (): Array<{
 };
 
 /**
- * Analyzes ingredients to determine dietary restrictions
+ * Analyzes ingredients to determine dietary restrictions more accurately
  */
 const analyzeDietaryRestrictions = (ingredients: string): string[] => {
   const ingredientsLower = ingredients.toLowerCase();
   const dietaryLabels: string[] = [];
   
-  // Check for vegetarian
+  // More comprehensive list of non-vegetarian ingredients
   const nonVegetarianIngredients = [
     'beef', 'chicken', 'pork', 'turkey', 'lamb', 'veal', 'ham', 
     'bacon', 'sausage', 'fish', 'salmon', 'tuna', 'shrimp', 'crab', 
-    'lobster', 'clam', 'oyster', 'scallop', 'meat', 'gelatin'
+    'lobster', 'clam', 'oyster', 'scallop', 'meat', 'gelatin',
+    'lard', 'tallow', 'suet', 'rennet', 'anchovies', 'worcestershire sauce',
+    'pepperoni', 'prosciutto', 'salami', 'chorizo', 'ground beef'
   ];
   
+  // Check if any non-vegetarian ingredient is present
   const hasNonVegetarianIngredient = nonVegetarianIngredients.some(ingredient => 
-    ingredientsLower.includes(ingredient)
+    ingredientsLower.includes(ingredient) || 
+    ingredientsLower.includes(ingredient + 's') || 
+    ingredientsLower.includes(ingredient + 'es')
   );
   
   if (!hasNonVegetarianIngredient) {
@@ -205,11 +211,14 @@ const analyzeDietaryRestrictions = (ingredients: string): string[] => {
     // If it's vegetarian, check if it's vegan too
     const nonVeganIngredients = [
       'milk', 'cheese', 'butter', 'cream', 'yogurt', 'egg', 
-      'honey', 'mayo', 'mayonnaise', 'whey', 'casein'
+      'honey', 'mayo', 'mayonnaise', 'whey', 'casein', 'lactose',
+      'ghee', 'custard', 'ice cream', 'dairy', 'heavy cream', 'buttermilk',
+      'sour cream', 'half and half', 'condensed milk', 'evaporated milk'
     ];
     
     const hasNonVeganIngredient = nonVeganIngredients.some(ingredient => 
-      ingredientsLower.includes(ingredient)
+      ingredientsLower.includes(ingredient) || 
+      ingredientsLower.includes(ingredient + 's')
     );
     
     if (!hasNonVeganIngredient) {
@@ -217,14 +226,20 @@ const analyzeDietaryRestrictions = (ingredients: string): string[] => {
     }
   }
   
-  // Check for gluten-free
+  // More extensive list for gluten-containing ingredients
   const glutenContainingIngredients = [
     'wheat', 'barley', 'rye', 'flour', 'pasta', 'bread', 
-    'biscuit', 'cookie', 'cracker', 'cereal', 'oats', 'beer'
+    'biscuit', 'cookie', 'cracker', 'cereal', 'malt', 'beer',
+    'couscous', 'farro', 'semolina', 'durum', 'bulgur', 'spelt',
+    'graham', 'kamut', 'matzo', 'panko', 'seitan', 'soy sauce',
+    'udon', 'wheat germ', 'wheat starch', 'triticale', 'orzo',
+    'bun', 'tortilla', 'english muffin'
   ];
   
+  // Check for gluten-free if no gluten ingredients are present
   const hasGlutenIngredient = glutenContainingIngredients.some(ingredient => 
-    ingredientsLower.includes(ingredient)
+    ingredientsLower.includes(ingredient) || 
+    ingredientsLower.includes(ingredient + 's')
   );
   
   if (!hasGlutenIngredient) {
@@ -238,7 +253,7 @@ const analyzeDietaryRestrictions = (ingredients: string): string[] => {
 const generateDetailedMenuItems = (diningHallId: string, url: string): MenuItem[] => {
   const mealPeriods: MealPeriod[] = ['Breakfast', 'Lunch', 'Dinner'];
   
-  // Enhanced ingredients and dietary information data
+  // Enhanced ingredients and dietary information data with more accurate details
   const foodDetails: Record<string, {ingredients: string, dietary?: string[]}> = {
     // Breakfast items
     "Pancakes": {
