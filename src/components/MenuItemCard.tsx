@@ -66,28 +66,27 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({ menuItem, onRatingChange })
         </div>
       )}
       <CardHeader className="pb-2">
-        <div className="flex justify-between items-start">
-          <h3 className="text-lg font-medium">{menuItem.name}</h3>
-          <Badge variant="outline" className="bg-campus-accent text-campus-primary">
-            {menuItem.category}
-          </Badge>
-        </div>
+        <h3 className="text-lg font-medium">{menuItem.name}</h3>
       </CardHeader>
       <CardContent className="pb-2">
         <p className="text-sm text-gray-600 mb-2">{menuItem.description}</p>
+        
         {menuItem.ingredients && (
-          <div className="mb-2">
-            <p className="text-xs font-medium text-gray-700">Ingredients:</p>
-            <p className="text-xs text-gray-600">{menuItem.ingredients}</p>
+          <div className="mb-3 bg-amber-50 p-2 rounded-md border border-amber-100">
+            <p className="text-xs font-medium text-amber-800">Ingredients:</p>
+            <p className="text-xs text-amber-700">{menuItem.ingredients}</p>
           </div>
         )}
-        <div className="flex flex-wrap gap-1 mb-2">
-          {menuItem.dietaryInfo.map((info) => (
-            <Badge key={info} variant="secondary" className="text-xs">
-              {info}
-            </Badge>
-          ))}
-        </div>
+        
+        {menuItem.dietaryInfo && menuItem.dietaryInfo.length > 0 && (
+          <div className="flex flex-wrap gap-1 mb-3">
+            {menuItem.dietaryInfo.map((info) => (
+              <Badge key={info} variant="outline" className="bg-green-50 text-green-700 border-green-200 text-xs">
+                {info}
+              </Badge>
+            ))}
+          </div>
+        )}
         
         <div className="bg-blue-50 p-2 rounded-md border border-blue-100 mt-3">
           <div className="flex justify-between items-center">

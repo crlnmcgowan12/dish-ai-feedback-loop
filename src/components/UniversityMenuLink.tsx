@@ -23,6 +23,7 @@ const UniversityMenuLink: React.FC<UniversityMenuLinkProps> = ({
   const [menuLink, setMenuLink] = useState<string>(university.menuLink || '');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [scrapingStatus, setScrapingStatus] = useState<string>('');
+  const [scrapingProgress, setScrapingProgress] = useState<number>(0);
 
   // Validate URL
   const isValidUrl = (url: string) => {
@@ -78,6 +79,7 @@ const UniversityMenuLink: React.FC<UniversityMenuLinkProps> = ({
 
     setIsLoading(true);
     setScrapingStatus('Connecting to website...');
+    setScrapingProgress(10);
     
     try {
       // Get dining halls for this university
@@ -94,15 +96,22 @@ const UniversityMenuLink: React.FC<UniversityMenuLinkProps> = ({
       
       // For each dining hall, scrape menu items
       let successCount = 0;
-      for (const hall of diningHalls) {
-        setScrapingStatus(`Importing menu for ${hall.name}...`);
+      const totalHalls = diningHalls.length;
+      
+      for (let i = 0; i < diningHalls.length; i++) {
+        const hall = diningHalls[i];
+        setScrapingStatus(`Importing menu for ${hall.name} (${i+1}/${totalHalls})...`);
+        setScrapingProgress(20 + Math.floor((i / totalHalls) * 70));
+        
         const result = await scrapeMenuFromWebsite(menuLink, hall.id);
         if (result) successCount++;
       }
       
+      setScrapingProgress(100);
+      
       if (successCount > 0) {
         toast({
-          title: "Menu Scraped Successfully",
+          title: "Menu Import Complete",
           description: `Menu items have been imported for ${successCount} dining halls at ${university.name}.`,
         });
       
@@ -118,13 +127,14 @@ const UniversityMenuLink: React.FC<UniversityMenuLinkProps> = ({
     } catch (error) {
       console.error("Error scraping menu:", error);
       toast({
-        title: "Error Scraping Menu",
+        title: "Error Importing Menu",
         description: "There was a problem importing the menu items. Please try again.",
         variant: "destructive",
       });
     } finally {
       setIsLoading(false);
       setScrapingStatus('');
+      setScrapingProgress(0);
     }
   };
 
@@ -174,17 +184,25 @@ const UniversityMenuLink: React.FC<UniversityMenuLinkProps> = ({
             disabled={isLoading}
           >
             <Download className="h-4 w-4" />
-            {isLoading ? scrapingStatus || "Importing Menu Data..." : "Import Menu Items From Website"}
+            {isLoading ? "Importing Menu Data..." : "Import Menu Items With Ingredients"}
           </Button>
           
           {isLoading && (
-            <div className="text-xs bg-blue-50 p-2 rounded animate-pulse">
-              {scrapingStatus}
+            <div className="space-y-2">
+              <div className="text-xs bg-blue-50 p-2 rounded animate-pulse">
+                {scrapingStatus}
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2.5">
+                <div 
+                  className="bg-blue-600 h-2.5 rounded-full transition-all duration-300" 
+                  style={{ width: `${scrapingProgress}%` }}
+                ></div>
+              </div>
             </div>
           )}
           
           <p className="text-xs text-gray-500 italic">
-            This will extract menu items from the university's menu website and add them to the app.
+            This will extract menu items, ingredients, and dietary information from the university's menu website.
           </p>
         </div>
       )}
