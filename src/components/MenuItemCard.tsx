@@ -86,6 +86,14 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({ menuItem, onRatingChange })
     setShowIngredients(!showIngredients);
   };
 
+  // Helper to check if ingredients are properly detailed
+  const hasProperIngredients = () => {
+    return menuItem.ingredients && 
+           menuItem.ingredients.length > 15 &&
+           !menuItem.ingredients.includes("various ingredients") &&
+           !menuItem.ingredients.includes("Detailed ingredients unavailable");
+  };
+
   return (
     <Card className="h-full overflow-hidden hover:shadow-md transition-shadow duration-300">
       {menuItem.image && (

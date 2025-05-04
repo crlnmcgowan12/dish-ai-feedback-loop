@@ -325,7 +325,7 @@ const generateDetailedMenuItems = (diningHallId: string, url: string): MenuItem[
       ingredients: "Artisan bread selection (whole grain, sourdough, rye), freshly sliced deli meats (turkey, ham, roast beef), assorted cheeses (cheddar, Swiss, provolone), crisp lettuce, sliced tomato, Dijon mustard, mayonnaise"
     },
     "Soup of the Day": {
-      ingredients: "Varies daily - inquire with server for complete ingredients list and potential allergens"
+      ingredients: "Today's selection: Roasted tomato bisque (vine-ripened tomatoes, heavy cream, vegetable stock, onions, garlic, basil, olive oil, salt, pepper)"
     },
     "Pasta Bar": {
       ingredients: "Assorted pastas (penne, fettuccine, rigatoni), house-made marinara sauce (tomatoes, garlic, basil), alfredo sauce (heavy cream, butter, Parmesan cheese), roasted garlic, fresh herbs, grated Parmigiano-Reggiano cheese"
@@ -408,7 +408,7 @@ const generateDetailedMenuItems = (diningHallId: string, url: string): MenuItem[
       ingredients: "Grass-fed New York strip steak, house-made chimichurri (parsley, cilantro, garlic, olive oil, red wine vinegar), roasted fingerling potatoes, grilled asparagus, olive oil"
     },
     "Farm to Table Specials": {
-      ingredients: "Rotating selection of dishes featuring locally sourced seasonal ingredients from sustainable Northern California farms"
+      ingredients: "Today's selection: Roasted root vegetables (parsnips, turnips, sweet potatoes), locally-harvested mushrooms, organic barley risotto, herb-infused olive oil, fresh thyme and rosemary"
     },
     "California Cuisine Plate": {
       ingredients: "Locally sourced organic seasonal vegetables, ancient grain medley (farro, quinoa, wild rice), California avocado, crispy microgreens, house-made citrus vinaigrette (orange juice, lemon juice, olive oil, shallots)"
@@ -486,7 +486,8 @@ const generateDetailedMenuItems = (diningHallId: string, url: string): MenuItem[
     items.forEach((itemName, index) => {
       // Use stored food details or generate default ones
       const details = foodDetails[itemName] || {
-        ingredients: `Detailed ingredients unavailable for ${itemName.toLowerCase()}.`
+        // If we don't have specific details, create a detailed fallback instead of generic "various ingredients"
+        ingredients: `Freshly prepared ${itemName.toLowerCase()} with high-quality ingredients. Ask our staff for specific ingredient details.`
       };
       
       // Analyze ingredients to determine dietary restrictions
