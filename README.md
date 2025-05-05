@@ -1,4 +1,4 @@
-# CampusDish Insights
+# CampusDish Insights https://preview--dish-ai-feedback-loop.lovable.app
 
 ## Project Description
 
