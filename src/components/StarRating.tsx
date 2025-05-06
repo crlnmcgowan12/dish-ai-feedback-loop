@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Star } from 'lucide-react';
 import { saveRating, getUserRatingForMenuItem } from '../services/ratingsService';
@@ -88,6 +87,7 @@ const StarRating = ({
 
   const handleSubmitRating = () => {
     // Save the rating with the comment
+    console.log("Submitting rating for menu item:", menuItemId, "with value:", userRating);
     const result = saveRating(menuItemId, userRating, comment);
     
     // Update UI only if rating was successfully saved

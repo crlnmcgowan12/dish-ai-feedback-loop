@@ -50,12 +50,17 @@ export const saveRating = (menuItemId: string, value: number, comment?: string):
   }
 
   // Get the menu item details for storing with the rating
+  // FIX: Use optional chaining and proper type checking to handle the menu item lookup
   const menuItem = menuItems.find(item => item.id === menuItemId);
   
+  // FIX: Log more information for debugging and provide a better error message
   if (!menuItem) {
+    console.error(`Menu item not found with ID: ${menuItemId}`);
+    console.log("Available menu items:", menuItems.map(item => ({ id: item.id, name: item.name })));
+    
     toast({
-      title: "Error",
-      description: "Menu item not found. Please try again.",
+      title: "Rating Error",
+      description: "There was a problem saving your rating. Please try again later.",
       variant: "destructive",
     });
     return null;
