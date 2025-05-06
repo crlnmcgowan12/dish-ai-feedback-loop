@@ -29,99 +29,139 @@ export const clearAllRatings = (): void => {
 
 // Save a rating for a menu item
 export const saveRating = (menuItemId: string, value: number, comment?: string): Rating | null => {
-  const isUserLoggedIn = isLoggedIn();
-  const currentUser = getCurrentUser();
-  
-  // If user is logged in, use their ID; otherwise use device ID
-  const userId = currentUser?.id;
-  const deviceId = getDeviceId();
-  
-  // Check comment for offensive language
-  let processedComment = comment;
-  if (comment && comment.trim() !== '') {
-    if (containsOffensiveLanguage(comment)) {
+  try {
+    // Validate inputs
+    if (!menuItemId || menuItemId.trim() === '') {
+      console.error("Invalid menuItemId provided to saveRating:", menuItemId);
       toast({
-        title: "Comment moderated",
-        description: "Your comment contains inappropriate language and has been filtered.",
-        variant: "default", // Changed from "warning" to "default" as warning is not a valid variant
-      });
-      processedComment = filterOffensiveLanguage(comment);
-    }
-  }
-
-  // Get the menu item details for storing with the rating
-  // FIX: Use optional chaining and proper type checking to handle the menu item lookup
-  const menuItem = menuItems.find(item => item.id === menuItemId);
-  
-  // FIX: Log more information for debugging and provide a better error message
-  if (!menuItem) {
-    console.error(`Menu item not found with ID: ${menuItemId}`);
-    console.log("Available menu items:", menuItems.map(item => ({ id: item.id, name: item.name })));
-    
-    toast({
-      title: "Rating Error",
-      description: "There was a problem saving your rating. Please try again later.",
-      variant: "destructive",
-    });
-    return null;
-  }
-  
-  // Get dining hall info
-  const diningHall = diningHalls.find(hall => hall.id === menuItem.diningHallId);
-  
-  // Create the new rating object
-  const newRating: Rating = {
-    id: `rating_${Math.random().toString(36).substring(2, 15)}`,
-    menuItemId,
-    value,
-    comment: processedComment,
-    deviceId,
-    userId: userId || undefined,
-    timestamp: new Date().toISOString(),
-    menuItemName: menuItem.name,
-    diningHallId: menuItem.diningHallId
-  };
-
-  // Get existing ratings from localStorage
-  const existingRatingsJson = localStorage.getItem(RATINGS_STORAGE_KEY);
-  const existingRatings: Rating[] = existingRatingsJson ? JSON.parse(existingRatingsJson) : [];
-  
-  // Check if the user has already rated this item today
-  if (isUserLoggedIn && userId) {
-    const today = new Date().toISOString().split('T')[0];
-    const userRatedToday = existingRatings.some(
-      rating => 
-        rating.menuItemId === menuItemId && 
-        rating.userId === userId && 
-        rating.timestamp.split('T')[0] === today
-    );
-    
-    if (userRatedToday) {
-      toast({
-        title: "Rating limited",
-        description: "You can only rate this item once per day. Your previous rating today has been counted.",
+        title: "Rating Error",
+        description: "Invalid menu item. Please try again.",
         variant: "destructive",
       });
       return null;
     }
+    
+    if (value < 1 || value > 5) {
+      console.error("Invalid rating value:", value);
+      toast({
+        title: "Rating Error",
+        description: "Please select a rating between 1 and 5 stars.",
+        variant: "destructive",
+      });
+      return null;
+    }
+    
+    const isUserLoggedIn = isLoggedIn();
+    const currentUser = getCurrentUser();
+    
+    // If user is logged in, use their ID; otherwise use device ID
+    const userId = currentUser?.id;
+    const deviceId = getDeviceId();
+    
+    // Check comment for offensive language
+    let processedComment = comment;
+    if (comment && comment.trim() !== '') {
+      if (containsOffensiveLanguage(comment)) {
+        toast({
+          title: "Comment moderated",
+          description: "Your comment contains inappropriate language and has been filtered.",
+          variant: "default",
+        });
+        processedComment = filterOffensiveLanguage(comment);
+      }
+    }
+
+    // Get the menu item details for storing with the rating
+    console.log(`Looking for menu item with ID: ${menuItemId}`);
+    const menuItem = menuItems.find(item => item.id === menuItemId);
+    
+    if (!menuItem) {
+      console.error(`Menu item not found with ID: ${menuItemId}`);
+      console.log("Available menu items:", menuItems.map(item => ({ id: item.id, name: item.name })));
+      
+      toast({
+        title: "Rating Error",
+        description: "There was a problem saving your rating. Please try again later.",
+        variant: "destructive",
+      });
+      return null;
+    }
+    
+    // Get dining hall info
+    const diningHall = diningHalls.find(hall => hall.id === menuItem.diningHallId);
+    
+    // Create the new rating object
+    const newRating: Rating = {
+      id: `rating_${Math.random().toString(36).substring(2, 15)}`,
+      menuItemId,
+      value,
+      comment: processedComment,
+      deviceId,
+      userId: userId || undefined,
+      timestamp: new Date().toISOString(),
+      menuItemName: menuItem.name,
+      diningHallId: menuItem.diningHallId
+    };
+
+    // Get existing ratings from localStorage
+    const existingRatingsJson = localStorage.getItem(RATINGS_STORAGE_KEY);
+    const existingRatings: Rating[] = existingRatingsJson ? JSON.parse(existingRatingsJson) : [];
+    
+    // Check if the user has already rated this item today
+    if (isUserLoggedIn && userId) {
+      const today = new Date().toISOString().split('T')[0];
+      const userRatedToday = existingRatings.some(
+        rating => 
+          rating.menuItemId === menuItemId && 
+          rating.userId === userId && 
+          rating.timestamp.split('T')[0] === today
+      );
+      
+      if (userRatedToday) {
+        toast({
+          title: "Rating limited",
+          description: "You can only rate this item once per day. Your previous rating today has been counted.",
+          variant: "destructive",
+        });
+        return null;
+      }
+    }
+    
+    // Filter out any previous rating by this device/user for this menu item (if not logged in)
+    // If logged in, keep previous ratings to maintain history, just add the new one
+    let filteredRatings = existingRatings;
+    if (!isUserLoggedIn) {
+      filteredRatings = existingRatings.filter(
+        rating => !(rating.menuItemId === menuItemId && rating.deviceId === deviceId && !rating.userId)
+      );
+    }
+    
+    // Add the new rating
+    const updatedRatings = [...filteredRatings, newRating];
+    
+    // Save back to localStorage
+    try {
+      localStorage.setItem(RATINGS_STORAGE_KEY, JSON.stringify(updatedRatings));
+      console.log("Successfully saved new rating:", newRating);
+      return newRating;
+    } catch (storageError) {
+      console.error("Error saving to localStorage:", storageError);
+      toast({
+        title: "Storage Error",
+        description: "Could not save your rating. Your browser storage may be full.",
+        variant: "destructive",
+      });
+      return null;
+    }
+  } catch (error) {
+    console.error("Unexpected error in saveRating:", error);
+    toast({
+      title: "Unexpected Error",
+      description: "Something went wrong. Please try again later.",
+      variant: "destructive",
+    });
+    return null;
   }
-  
-  // Filter out any previous rating by this device/user for this menu item (if not logged in)
-  // If logged in, keep previous ratings to maintain history, just add the new one
-  let filteredRatings = existingRatings;
-  if (!isUserLoggedIn) {
-    filteredRatings = existingRatings.filter(
-      rating => !(rating.menuItemId === menuItemId && rating.deviceId === deviceId && !rating.userId)
-    );
-  }
-  
-  // Add the new rating
-  const updatedRatings = [...filteredRatings, newRating];
-  
-  // Save back to localStorage
-  localStorage.setItem(RATINGS_STORAGE_KEY, JSON.stringify(updatedRatings));
-  
-  return newRating;
 };
 
 // Get all ratings for a specific menu item

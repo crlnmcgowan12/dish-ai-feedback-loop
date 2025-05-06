@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Star } from 'lucide-react';
 import { saveRating, getUserRatingForMenuItem } from '../services/ratingsService';
@@ -6,6 +7,7 @@ import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 import AuthModal from './AuthModal';
+import { toast } from '../hooks/use-toast';
 
 interface StarRatingProps {
   menuItemId: string;
@@ -86,12 +88,27 @@ const StarRating = ({
   };
 
   const handleSubmitRating = () => {
+    // Validate the menuItemId
+    if (!menuItemId || menuItemId.trim() === '') {
+      toast({
+        title: "Rating Error",
+        description: "Invalid menu item. Please reload the page and try again.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     // Save the rating with the comment
     console.log("Submitting rating for menu item:", menuItemId, "with value:", userRating);
     const result = saveRating(menuItemId, userRating, comment);
     
     // Update UI only if rating was successfully saved
     if (result) {
+      toast({
+        title: "Rating Submitted",
+        description: "Thank you for your feedback!",
+        variant: "default",
+      });
       setShowCommentInput(false);
       
       if (onRatingChange) {

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { menuItems, getHistoricalRatings, diningHalls } from '../services/mockDataService';
@@ -11,12 +10,13 @@ import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
 import { getAverageRating, getDailyRating, getRatingsByMenuItem } from '../services/ratingsService';
 import { Utensils } from 'lucide-react';
+import { toast } from '../hooks/use-toast';
 
 const MenuItemDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [menuItem, setMenuItem] = useState<MenuItem | undefined>(
-    menuItems.find((item) => item.id === id)
+    id ? menuItems.find((item) => item.id === id) : undefined
   );
   const [historicalRatings, setHistoricalRatings] = useState<HistoricalRating[]>([]);
   const [overallRating, setOverallRating] = useState(0);
@@ -27,45 +27,63 @@ const MenuItemDetail: React.FC = () => {
 
   // Handle invalid IDs
   useEffect(() => {
-    if (!menuItem) {
+    if (!id) {
+      toast({
+        title: "Error",
+        description: "No menu item ID provided",
+        variant: "destructive",
+      });
+      navigate('/');
+      return;
+    }
+    
+    const foundItem = menuItems.find((item) => item.id === id);
+    if (!foundItem) {
+      toast({
+        title: "Error",
+        description: "Menu item not found",
+        variant: "destructive",
+      });
       navigate('/');
     } else {
+      setMenuItem(foundItem);
+      
       // Load historical ratings
-      const ratings = getHistoricalRatings(menuItem.id);
+      const ratings = getHistoricalRatings(foundItem.id);
       setHistoricalRatings(ratings);
       
       // Get real-time ratings
-      const avgRating = getAverageRating(menuItem.id);
-      const { rating: dailyRating, count: dailyCount } = getDailyRating(menuItem.id);
+      const avgRating = getAverageRating(foundItem.id);
+      const { rating: dailyRating, count: dailyCount } = getDailyRating(foundItem.id);
       
-      setOverallRating(avgRating > 0 ? avgRating : menuItem.averageRating);
-      setOverallCount(menuItem.ratingsCount);
+      setOverallRating(avgRating > 0 ? avgRating : foundItem.averageRating);
+      setOverallCount(foundItem.ratingsCount);
       setTodayRating(dailyRating);
       setTodayCount(dailyCount);
       
       // Get recent ratings with comments
-      const allRatings = getRatingsByMenuItem(menuItem.id);
+      const allRatings = getRatingsByMenuItem(foundItem.id);
       const sortedRatings = allRatings
         .filter(r => r.comment && r.comment.trim() !== '')
         .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
         .slice(0, 5); // Show only 5 most recent comments
       setRecentRatings(sortedRatings);
     }
-  }, [menuItem, navigate, id]);
+  }, [id, navigate]);
   
   const handleRatingChange = () => {
-    if (!menuItem) return;
+    if (!menuItem || !id) return;
     
     // Update ratings after a new rating is submitted
-    const avgRating = getAverageRating(menuItem.id);
-    const { rating: dailyRating, count: dailyCount } = getDailyRating(menuItem.id);
+    const avgRating = getAverageRating(id);
+    const { rating: dailyRating, count: dailyCount } = getDailyRating(id);
     
     setOverallRating(avgRating);
     setTodayRating(dailyRating);
     setTodayCount(dailyCount);
     
     // Refresh recent ratings
-    const allRatings = getRatingsByMenuItem(menuItem.id);
+    const allRatings = getRatingsByMenuItem(id);
     const sortedRatings = allRatings
       .filter(r => r.comment && r.comment.trim() !== '')
       .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
@@ -73,7 +91,7 @@ const MenuItemDetail: React.FC = () => {
     setRecentRatings(sortedRatings);
   };
 
-  if (!menuItem) {
+  if (!menuItem || !id) {
     return null; // Will redirect via useEffect
   }
 
